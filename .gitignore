@@ -1,5 +1,26 @@
+# Antigravity & IDE
 .gemini/
 *.log
 *.tmp
 .DS_Store
 Thumbs.db
+
+# Internal configuration & Master Blueprint
+.agents/
+docs/
+GEMINI.md
+.clasp.json
+
+# Backend Google Apps Script & Configuration
+appsscript.json
+*.js
+*.gs
+
+# Clinical Assessment Forms & Internal Dashboards (Served securely via Google Apps Script)
+Dashboard.html
+Eq5dPatient.html
+FjsPatient.html
+KssPatient.html
+KssPhysician.html
+OxfordPatient.html
+Womac.html
