@@ -456,13 +456,28 @@
 
       <!-- Tab 2: Staff Only Pane -->
       <div id="paneStaff" class="tab-pane">
+        <!-- Staff Authentication Banner -->
+        <div id="staffAuthBanner" style="display: none; background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 12px 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill" style="font-size: 0.78rem;">
+                ● เข้าสู่ระบบแล้ว
+              </span>
+              <span class="fw-bold" id="staffAuthName" style="color: var(--text-main); font-size: 0.95rem;">-</span>
+              <span class="text-muted small" id="staffAuthEmail" style="font-size: 0.8rem;">(-)</span>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm px-3 py-1 fw-semibold rounded-pill" onclick="logoutStaff()" style="font-size: 0.8rem;">
+              ออกจากระบบ 🔒
+            </button>
+          </div>
+        </div>
         <div id="staffModuleList"></div>
       </div>
     </div>
   </div>
 
   <div style="text-align: center; font-size: 0.78rem; color: #94a3b8; margin-bottom: 10px; padding: 0 15px; font-weight: 500;">
-    Version 1.5.6 • Build 2026.09.17 (อัปเดตล่าสุด: 17/09/2026 10:30)
+    Version 1.5.7 • Build 2026.09.17 (อัปเดตล่าสุด: 17/09/2026 10:45)
   </div>
   <div class="footer">
     Copyright. 2026 © Chaophraya Yommarat Hospital | All rights reserved.
@@ -485,7 +500,7 @@
       <div class="close-btn" onclick="closePasscodeModal()">&times;</div>
       <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
       <h5 class="fw-bold mb-2" style="color: var(--text-main);">สำหรับเจ้าหน้าที่เท่านั้น</h5>
-      <p class="text-secondary small mb-4">กรุณาระบุรหัสผ่านตัวเลขส่วนบุคคลเพื่อเปิดแบบประเมิน</p>
+      <p class="text-secondary small mb-4">กรุณาระบุรหัสผ่านตัวเลขส่วนบุคคลเพื่อเปิดเมนูเจ้าหน้าที่</p>
 
       <div class="mb-3 text-start">
         <input type="password" class="form-control text-center fw-bold" id="staffPasscodeInput"
@@ -498,7 +513,7 @@
 
       <button type="button" class="btn btn-danger w-100 py-2 fw-bold" id="btnSubmitPasscode" onclick="submitPasscode()"
         style="border-radius: 12px; font-size: 1rem; background-color: #d32f2f; border: none; box-shadow: 0 4px 10px rgba(211,47,47,0.3);">
-        เข้าสู่ระบบแบบประเมิน &rarr;
+        เข้าสู่ระบบเมนูเจ้าหน้าที่ &rarr;
       </button>
     </div>
   </div>
@@ -661,15 +676,73 @@
           submitPasscode();
         }
       });
+
+      /* แสดงผลแถบสถานะเจ้าหน้าที่หากมีเซสชันที่ผ่านการยืนยันแล้ว */
+      updateStaffAuthUI();
     });
+
+    /* ระบบจัดการเซสชันเจ้าหน้าที่ (Staff Session Authentication) */
+    function getAuthenticatedStaff() {
+      try {
+        const stored = sessionStorage.getItem('yommarat_auth_staff');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.name) return parsed;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function setAuthenticatedStaff(staffData) {
+      try {
+        sessionStorage.setItem('yommarat_auth_staff', JSON.stringify(staffData));
+      } catch (e) {}
+    }
+
+    function clearAuthenticatedStaff() {
+      try {
+        sessionStorage.removeItem('yommarat_auth_staff');
+      } catch (e) {}
+    }
+
+    function logoutStaff() {
+      clearAuthenticatedStaff();
+      updateStaffAuthUI();
+      switchHubTab('patient');
+    }
+
+    function updateStaffAuthUI() {
+      const auth = getAuthenticatedStaff();
+      const banner = document.getElementById('staffAuthBanner');
+      if (auth && banner) {
+        document.getElementById('staffAuthName').innerText = auth.name || 'เจ้าหน้าที่';
+        document.getElementById('staffAuthEmail').innerText = auth.email ? `(${auth.email})` : '';
+        banner.style.display = 'block';
+      } else if (banner) {
+        banner.style.display = 'none';
+      }
+    }
 
     let currentHubTab = 'patient';
     function switchHubTab(tabName) {
+      if (tabName === 'staff') {
+        const auth = getAuthenticatedStaff();
+        if (!auth) {
+          // ยังไม่ได้ยืนยันตัวตน -> เปิดหน้าต่างถามรหัสผ่านทันที!
+          triggerPasscodeModal();
+          return;
+        }
+      }
+
       currentHubTab = tabName;
       document.getElementById('tabBtnPatient').classList.toggle('active', tabName === 'patient');
       document.getElementById('tabBtnStaff').classList.toggle('active', tabName === 'staff');
       document.getElementById('panePatient').classList.toggle('active', tabName === 'patient');
       document.getElementById('paneStaff').classList.toggle('active', tabName === 'staff');
+
+      if (tabName === 'staff') {
+        updateStaffAuthUI();
+      }
     }
 
     function renderModules(data) {
@@ -789,8 +862,8 @@
 
       let actionBtnHtml = '';
       if (isStaff) {
-        actionBtnHtml = '<button type="button" class="btn-action" data-module="' + item.module_id + '" data-target="' + encodeURIComponent(targetUrl) + '" onclick="handleStaffBtnClick(this)" style="background-color: ' + themeColor + '; box-shadow: 0 4px 15px ' + themeColor + '40;">' +
-          'เข้าใช้งาน (กรอกรหัสผ่าน) 🔒' +
+        actionBtnHtml = '<button type="button" class="btn-action" data-module="' + item.module_id + '" data-target="' + encodeURIComponent(targetUrl) + '" onclick="handleDirectStaffClick(this)" style="background-color: ' + themeColor + '; box-shadow: 0 4px 15px ' + themeColor + '40;">' +
+          'เปิด ' + item.title + ' &rarr;' +
         '</button>';
       } else {
         actionBtnHtml = '<a href="' + targetUrl + '" target="_top" class="btn-action" style="background-color: ' + themeColor + '; box-shadow: 0 4px 15px ' + themeColor + '40;">' +
@@ -834,10 +907,37 @@
       openQrModal(url, title);
     }
 
-    function handleStaffBtnClick(el) {
+    function handleDirectStaffClick(el) {
+      const auth = getAuthenticatedStaff();
+      if (!auth) {
+        triggerPasscodeModal();
+        return;
+      }
+
       const moduleId = el.getAttribute('data-module') || '';
-      const targetUrl = decodeURIComponent(el.getAttribute('data-target') || '');
-      triggerPasscodeModal(moduleId, targetUrl);
+      let targetUrl = decodeURIComponent(el.getAttribute('data-target') || '');
+      if (!targetUrl || targetUrl.indexOf('http') !== 0) {
+        let pageParam = moduleId || 'dashboard';
+        if (targetUrl && targetUrl.includes('page=')) {
+          pageParam = targetUrl.split('page=')[1].split('&')[0];
+        }
+        targetUrl = SCRIPT_URL + '?page=' + pageParam;
+      }
+
+      const separator = targetUrl.indexOf('?') !== -1 ? '&' : '?';
+      targetUrl += separator + 'staff_email=' + encodeURIComponent(auth.email || '') + '&staff_name=' + encodeURIComponent(auth.name || '');
+
+      document.getElementById('loader').style.display = 'block';
+      const p1 = document.getElementById('panePatient');
+      const p2 = document.getElementById('paneStaff');
+      if (p1) p1.style.display = 'none';
+      if (p2) p2.style.display = 'none';
+
+      if (window.top) {
+        window.top.location.href = targetUrl;
+      } else {
+        window.location.href = targetUrl;
+      }
     }
 
     /* ฟังก์ชันสำหรับเปิด-ปิด QR Code Modal */
@@ -853,11 +953,12 @@
     }
 
     /* ฟังก์ชันควบคุมรหัสผ่านเจ้าหน้าที่ */
-    function triggerPasscodeModal(moduleId, actionLink) {
-      activeModuleId = moduleId;
-      activeActionLink = actionLink;
+    function triggerPasscodeModal() {
       document.getElementById('staffPasscodeInput').value = '';
       document.getElementById('passcodeError').style.display = 'none';
+      const submitBtn = document.getElementById('btnSubmitPasscode');
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'เข้าสู่ระบบเมนูเจ้าหน้าที่ →';
       document.getElementById('passcodeModal').style.display = 'flex';
       setTimeout(() => {
         document.getElementById('staffPasscodeInput').focus();
@@ -882,36 +983,20 @@
       }
 
       errorDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'กำลังตรวจสอบ...';
+
       function handleSuccess(response) {
         submitBtn.disabled = false;
+        submitBtn.innerText = 'เข้าสู่ระบบเมนูเจ้าหน้าที่ →';
         if (response && response.success) {
-          submitBtn.innerText = 'กำลังเข้าสู่ระบบ...';
+          setAuthenticatedStaff({
+            name: response.name,
+            email: response.email
+          });
           closePasscodeModal();
-          document.getElementById('loader').style.display = 'block';
-          const p1 = document.getElementById('panePatient');
-          const p2 = document.getElementById('paneStaff');
-          if (p1) p1.style.display = 'none';
-          if (p2) p2.style.display = 'none';
-
-          /* นำทางไปยัง targetUrl พร้อมแนบ email และ name ของเจ้าหน้าที่ใน URL */
-          let targetUrl = activeActionLink;
-          if (!targetUrl || targetUrl.indexOf('http') !== 0) {
-            let pageParam = activeModuleId || 'dashboard';
-            if (targetUrl && targetUrl.includes('page=')) {
-              pageParam = targetUrl.split('page=')[1].split('&')[0];
-            }
-            targetUrl = SCRIPT_URL + '?page=' + pageParam;
-          }
-          const separator = targetUrl.indexOf('?') !== -1 ? '&' : '?';
-          targetUrl += separator + 'staff_email=' + encodeURIComponent(response.email || '') + '&staff_name=' + encodeURIComponent(response.name || '');
-
-          if (window.top) {
-            window.top.location.href = targetUrl;
-          } else {
-            window.location.href = targetUrl;
-          }
+          switchHubTab('staff');
         } else {
-          submitBtn.innerText = 'เข้าสู่ระบบแบบประเมิน →';
           errorDiv.innerText = (response && response.message) ? response.message : 'รหัสผ่านไม่ถูกต้อง';
           errorDiv.style.display = 'block';
           document.getElementById('staffPasscodeInput').focus();
@@ -920,7 +1005,7 @@
 
       function handleError(err) {
         submitBtn.disabled = false;
-        submitBtn.innerText = 'เข้าสู่ระบบแบบประเมิน →';
+        submitBtn.innerText = 'เข้าสู่ระบบเมนูเจ้าหน้าที่ →';
         errorDiv.innerText = 'เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์';
         errorDiv.style.display = 'block';
       }
