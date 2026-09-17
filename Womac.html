@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>แบบประเมิน WOMAC - รพ.เจ้าพระยายมราช</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #4caf50;
+      --bg-color: #f4f7f6;
+      --text-dark: #2c3e50;
+    }
+    body { background-color: var(--bg-color); font-family: 'Sarabun', sans-serif; color: var(--text-dark); padding-bottom: 20px;}
+    .step-container { display: none; padding-bottom: 100px; } 
+    .step-container.active { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .app-header { background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(46,125,50,0.2); position: relative; overflow: hidden;}
+    .app-header::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    
+    /* ปุ่มกลับหน้าหลัก */
+    .btn-back-home {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; background: white; border: 2px solid var(--primary-color);
+      color: var(--primary-color); padding: 12px; border-radius: 12px;
+      font-weight: bold; text-align: center; margin-bottom: 25px;
+      transition: all 0.3s; cursor: pointer; text-decoration: none;
+    }
+    .btn-back-home:hover { background: #e8f5e9; transform: translateY(-2px); }
+
+    .joint-card { background: white; border: 2px solid #e0e0e0; border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .joint-card:hover { border-color: var(--secondary-color); transform: translateY(-5px); }
+    .joint-card.selected { border-color: var(--primary-color); background-color: #e8f5e9; box-shadow: 0 8px 15px rgba(46,125,50,0.2); }
+    .joint-svg { width: 80px; height: 80px; margin-bottom: 15px; fill: none; stroke: #546e7a; stroke-width: 1.5; transition: 0.3s; }
+    .joint-card.selected .joint-svg { stroke: var(--primary-color); stroke-width: 2; }
+    
+    .question-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 5px solid var(--secondary-color); }
+    .q-number { font-size: 0.85rem; color: var(--primary-color); margin-bottom: 5px; font-weight: bold; }
+    .q-text { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+    .q-desc { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 15px; }
+    
+    .score-group { display: flex; justify-content: space-between; gap: 6px; }
+    .score-btn { flex: 1; text-align: center; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 0; cursor: pointer; background: #f8fafc; transition: 0.2s; user-select: none; }
+    .score-btn input { display: none; }
+    .score-num { font-size: 1.25rem; font-weight: bold; color: #64748b; }
+    .score-label { font-size: 0.7rem; color: #94a3b8; }
+    
+    .score-btn.selected-0 { background: #f1f5f9; border-color: #cbd5e1; }
+    .score-btn.selected-1 { background: #e0f2fe; border-color: #7dd3fc; }
+    .score-btn.selected-2 { background: #fef9c3; border-color: #fde047; }
+    .score-btn.selected-3 { background: #ffedd5; border-color: #fdba74; }
+    .score-btn.selected-4 { background: #fee2e2; border-color: #fca5a5; }
+
+    .eval-stage-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .eval-stage-btn {
+      display: block;
+      text-align: center;
+      padding: 12px 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .eval-stage-btn input { display: none; }
+    .eval-stage-btn.selected { 
+      background: #fff3e0 !important; 
+      border-color: #f57c00 !important; 
+      color: #e65100 !important; 
+    }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); text-align: center; z-index: 100;}
+    .btn-next { background-color: var(--primary-color); color: white; border-radius: 25px; padding: 12px; font-weight: bold; width: 100%; max-width: 500px; border: none; transition: 0.3s;}
+    
+    .result-wrapper { padding-bottom: 40px; }
+    .capture-area { background-color: var(--bg-color); padding: 15px; border-radius: 12px; }
+    
+    .score-hero { background: white; border-radius: 16px; padding: 30px 20px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--primary-color);}
+    .score-hero h2 { font-size: 1.1rem; color: #7f8c8d; margin-bottom: 5px; font-weight: bold;}
+    .main-score { font-size: 5rem; font-weight: 900; line-height: 1; margin: 10px 0; transition: color 0.3s;}
+    .main-score span { font-size: 1.8rem; font-weight: normal; color: #bdc3c7; }
+    .score-percent { font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; transition: color 0.3s;}
+    .badge-severity { padding: 8px 25px; border-radius: 30px; font-size: 1.3rem; font-weight: bold; color: white; display: inline-block; transition: background 0.3s;}
+
+    .mini-card-row { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 10px;}
+    .mini-card { flex: 1; background: white; border-radius: 12px; padding: 15px 5px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .mc-score { font-size: 1.5rem; font-weight: bold; color: #e74c3c; line-height: 1;}
+    .mc-score.c2 { color: #f39c12; }
+    .mc-score.c3 { color: #3498db; }
+    .mc-total { font-size: 0.8rem; color: #bdc3c7; margin-bottom: 5px;}
+    .mc-label { font-size: 0.75rem; color: #7f8c8d; font-weight: bold;}
+
+    .chart-card, .legend-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .chart-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; color: #34495e;}
+    .bar-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px; font-weight: bold;}
+    .progress { height: 8px; border-radius: 4px; background-color: #ecf0f1; margin-bottom: 15px;}
+    .bg-pain { background-color: #e74c3c; } .bg-stiff { background-color: #f39c12; } .bg-func { background-color: #3498db; }
+
+    .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; padding: 8px 0; border-bottom: 1px solid #f1f2f6;}
+    .legend-left { display: flex; align-items: center; gap: 10px; color:#7f8c8d;}
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .legend-right { font-weight: bold; width: 40%; text-align: left;}
+    .highlight-row { background: #f0f8ff; border-radius: 8px; padding: 8px; border-bottom: none !important;}
+
+    .action-btn-row { display: flex; gap: 10px; margin-top: 15px; padding: 0 15px;}
+    .btn-outline { flex: 1; border: 2px solid #e0e0e0; background: #f4f7f6; color: #34495e; padding: 12px; border-radius: 12px; font-weight: bold; border:none;}
+    .btn-save { flex: 1; background: var(--primary-color); color: white; padding: 12px; border-radius: 12px; font-weight: bold; border: none; box-shadow: 0 4px 10px rgba(46,125,50,0.3);}
+    
+    .hospital-contact { background: var(--primary-color); color: white; text-align: center; padding: 20px; margin-top: 30px; border-radius: 12px 12px 0 0;}
+    .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #95a5a6; background: #e8f5e9; }
+    .max-width-container { max-width: 500px; margin: 0 auto; }
+    
+    #loadingOverlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.95); z-index: 9999; 
+      flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    }
+    .spinner-border { width: 4rem; height: 4rem; color: var(--primary-color); margin-bottom: 20px;}
+
+    /* Patient Info Form Styling */
+    .form-card {
+      background: white; border-radius: 16px; padding: 25px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
+      margin-bottom: 20px; text-align: left;
+    }
+    .form-label-custom {
+      font-size: 0.9rem; font-weight: 700; color: #475569; margin-bottom: 6px; display: block;
+    }
+    .form-control-custom {
+      border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 15px; font-size: 0.95rem;
+      width: 100%; transition: all 0.2s; background: #f8fafc;
+    }
+    .form-control-custom:focus {
+      border-color: var(--secondary-color); outline: none; background: white;
+      box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+    }
+    .gender-select-group {
+      display: flex; gap: 12px;
+    }
+    .gender-btn {
+      flex: 1; text-align: center; border: 1.5px solid #cbd5e1; border-radius: 10px;
+      padding: 10px 0; cursor: pointer; background: #f8fafc; font-weight: 600; transition: all 0.2s;
+    }
+    .gender-btn input { display: none; }
+    .gender-btn.selected-male { background: #e0f2fe !important; border-color: #0284c7 !important; color: #0284c7 !important; }
+    .gender-btn.selected-female { background: #fce7f3 !important; border-color: #db2777 !important; color: #db2777 !important; }
+  </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+  <div class="spinner-border" role="status"></div>
+  <h4 style="color: var(--primary-color); font-weight: bold;">กำลังประมวลผลและส่งข้อมูล...</h4>
+  <p class="text-secondary">กรุณารอสักครู่</p>
+</div>
+
+<div class="max-width-container">
+  <form id="womacForm">
+    <!-- Step 0 -->
+    <div id="step0" class="step-container active pt-4 px-3">
+      <div class="app-header text-center">
+        <h3 class="mb-2" style="font-weight:700;">WOMAC Calculator</h3>
+        <p class="mb-1" style="font-size:1rem; opacity:0.95;">แบบประเมินข้อสะโพกเสื่อม (Hip)</p>
+        <p class="mb-0" style="font-size:0.95rem; font-weight:bold; color:#e8f5e9;">โรงพยาบาลเจ้าพระยายมราช</p>
+      </div>
+      
+      <!-- ปุ่มกลับหน้าหลัก -->
+      <button type="button" class="btn-back-home" id="btnBackHome" onclick="goHome()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        กลับไปหน้ารวมแบบประเมิน
+      </button>
+
+      <div class="form-card">
+        <h5 class="mb-3 text-center text-primary fw-bold" style="border-bottom: 2px solid #e8f5e9; padding-bottom: 10px;">ข้อมูลผู้ป่วยและการประเมิน</h5>
+        
+        <div class="mb-3">
+          <label class="form-label-custom" for="hnInput">เลขประจำตัวผู้ป่วย (HN) (ดูจากบัตรประจำตัวผู้ป่วย) <span class="text-danger">*</span></label>
+          <input type="text" class="form-control-custom" id="hnInput" placeholder="ระบุเลข HN ของผู้ป่วย" required>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-4">
+            <label class="form-label-custom" for="prefixSelect">คำนำหน้า <span class="text-danger">*</span></label>
+            <select class="form-control-custom" id="prefixSelect" style="appearance: auto; padding-right: 5px;" required>
+              <option value="" disabled selected>เลือก...</option>
+              <option value="นาย">นาย</option>
+              <option value="นาง">นาง</option>
+              <option value="นางสาว">นางสาว</option>
+              <option value="เด็กชาย">เด็กชาย</option>
+              <option value="เด็กหญิง">เด็กหญิง</option>
+              <option value="พระ">พระ</option>
+              <option value="อื่นๆ">อื่นๆ</option>
+            </select>
+          </div>
+          <div class="col-8">
+            <label class="form-label-custom" for="nameInput">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+            <input type="text" class="form-control-custom" id="nameInput" placeholder="กรอกชื่อและนามสกุล" required>
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label-custom">เพศ <span class="text-danger">*</span></label>
+            <div class="gender-select-group">
+              <label class="gender-btn" id="genderMaleBtn" onclick="selectGender('ชาย')">
+                <input type="radio" name="gender" id="gender_male" value="ชาย">
+                ชาย
+              </label>
+              <label class="gender-btn" id="genderFemaleBtn" onclick="selectGender('หญิง')">
+                <input type="radio" name="gender" id="gender_female" value="หญิง">
+                หญิง
+              </label>
+            </div>
+          </div>
+          <div class="col-6">
+            <label class="form-label-custom" for="ageInput">อายุ (ปี) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control-custom" id="ageInput" placeholder="ระบุอายุ" min="1" max="120" required>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label-custom">ระยะการประเมิน <span class="text-danger">*</span></label>
+          <div class="eval-stage-group">
+            <label class="eval-stage-btn" id="evalStage_Pre-Op">
+              <input type="radio" name="evalStage" value="Pre-Op" onchange="updateEvalStageStyle()">
+              ก่อนผ่าตัด (Pre-Op)
+            </label>
+            <label class="eval-stage-btn" id="evalStage_Post-Op_3_Months">
+              <input type="radio" name="evalStage" value="Post-Op 3 Months" onchange="updateEvalStageStyle()">
+              หลังผ่าตัด 3 เดือน
+            </label>
+            <label class="eval-stage-btn" id="evalStage_Post-Op_6_Months">
+              <input type="radio" name="evalStage" value="Post-Op 6 Months" onchange="updateEvalStageStyle()">
+              หลังผ่าตัด 6 เดือน
+            </label>
+            <label class="eval-stage-btn" id="evalStage_Post-Op_1_Year">
+              <input type="radio" name="evalStage" value="Post-Op 1 Year" onchange="updateEvalStageStyle()">
+              หลังผ่าตัด 1 ปี
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" name="jointType" id="jointTypeInput" value="Hip">
+      <div class="bottom-bar">
+        <button type="button" class="btn-next" onclick="nextStep(1)">เริ่มทำแบบประเมิน →</button>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="step1" class="step-container pt-3 px-3">
+      <div class="app-header" style="padding: 15px 20px;">
+        <h5 class="mb-0">ความเจ็บปวด (Pain)</h5>
+        <small>5 คำถาม • คะแนนรวม 0–20</small>
+      </div>
+      <p class="text-secondary small fw-bold">ท่านมีความเจ็บปวดมากเพียงใดใน 2 สัปดาห์ที่ผ่านมา?</p>
+      <div id="painQuestions"></div>
+      <div class="bottom-bar">
+        <button type="button" class="btn-next" onclick="nextStep(2)">ถัดไป — ความตึงของข้อ →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="step-container pt-3 px-3">
+      <div class="app-header" style="padding: 15px 20px; background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);">
+        <h5 class="mb-0">ความตึงของข้อ (Stiffness)</h5>
+        <small>2 คำถาม • คะแนนรวม 0–8</small>
+      </div>
+      <p class="text-secondary small fw-bold">ท่านมีอาการข้อฝืดตึงมากเพียงใดใน 2 สัปดาห์ที่ผ่านมา?</p>
+      <div id="stiffnessQuestions"></div>
+      <div class="bottom-bar">
+        <button type="button" class="btn-next" onclick="nextStep(3)">ถัดไป — การทำกิจวัตร →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" class="step-container pt-3 px-3">
+      <div class="app-header" style="padding: 15px 20px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+        <h5 class="mb-0">การทำกิจวัตร (Function)</h5>
+        <small>17 คำถาม • คะแนนรวม 0–68</small>
+      </div>
+      <p class="text-secondary small fw-bold">ท่านมีความยากลำบากในการทำกิจกรรมต่อไปนี้มากเพียงใด?</p>
+      <div id="functionQuestions"></div>
+      <div class="bottom-bar">
+        <button type="button" class="btn-next" id="submitBtn" onclick="submitForm()">ส่งแบบประเมิน</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Result Page -->
+  <div id="resultPage" class="step-container result-wrapper">
+    <div id="captureArea" class="capture-area">
+      <div class="app-header" style="padding: 15px; margin-bottom: 10px; border-radius: 12px; text-align: center;">
+        <h5 class="mb-0 fw-bold">WOMAC Calculator (ข้อสะโพก)</h5>
+        <small>โรงพยาบาลเจ้าพระยายมราช</small>
+      </div>
+
+      <!-- ส่วนแสดงข้อมูลคนไข้ในภาพบันทึกผล -->
+      <div class="mb-3" style="background: white; border-radius: 12px; padding: 15px; border-left: 5px solid var(--primary-color); box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: left;">
+        <div style="font-size: 0.8rem; font-weight: bold; color: #64748b; margin-bottom: 5px;">ข้อมูลผู้ป่วย</div>
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--text-dark);" id="resPatientName">-</div>
+        <div style="font-size: 0.9rem; color: #475569; margin-top: 2px;">
+          <span>HN: <strong id="resPatientHn">-</strong></span> | 
+          <span>เพศ: <strong id="resPatientGender">-</strong></span> | 
+          <span>อายุ: <strong id="resPatientAge">-</strong> ปี</span>
+        </div>
+      </div>
+
+      <div class="score-hero">
+        <h2>คะแนน WOMAC รวม</h2>
+        <div class="main-score" id="resTotal">0<span> / 96</span></div>
+        <div class="score-percent" id="resPercent">0%</div>
+        <div class="badge-severity" id="resSeverity">ระดับ</div>
+      </div>
+
+      <div class="mini-card-row">
+        <div class="mini-card"><div class="mc-score" id="resPain">0</div><div class="mc-total">/ 20</div><div class="mc-label">ความเจ็บปวด</div></div>
+        <div class="mini-card"><div class="mc-score c2" id="resStiff">0</div><div class="mc-total">/ 8</div><div class="mc-label">ความตึงของข้อ</div></div>
+        <div class="mini-card"><div class="mc-score c3" id="resFunc">0</div><div class="mc-total">/ 68</div><div class="mc-label">การทำกิจวัตร</div></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">คะแนนแต่ละด้าน (%)</div>
+        <div class="bar-label"><span>ความเจ็บปวด</span><span id="txtPainPerc">0/20 (0%)</span></div>
+        <div class="progress"><div id="barPain" class="progress-bar bg-pain" style="width: 0%"></div></div>
+        
+        <div class="bar-label"><span>ความตึงของข้อ</span><span id="txtStiffPerc">0/8 (0%)</span></div>
+        <div class="progress"><div id="barStiff" class="progress-bar bg-stiff" style="width: 0%"></div></div>
+        
+        <div class="bar-label"><span>การทำกิจวัตร</span><span id="txtFuncPerc">0/68 (0%)</span></div>
+        <div class="progress" style="margin-bottom:0;"><div id="barFunc" class="progress-bar bg-func" style="width: 0%"></div></div>
+      </div>
+
+      <div class="legend-card">
+        <div class="chart-title mb-2">ระดับความรุนแรง</div>
+        <div class="legend-item" id="leg-1"><div class="legend-left"><div class="dot" style="background:#2ecc71;"></div> 0 – 24%</div><div class="legend-right" style="color:#2ecc71;">น้อย / ปกติ</div></div>
+        <div class="legend-item" id="leg-2"><div class="legend-left"><div class="dot" style="background:#3498db;"></div> 25 – 49%</div><div class="legend-right" style="color:#3498db;">เล็กน้อย</div></div>
+        <div class="legend-item" id="leg-3"><div class="legend-left"><div class="dot" style="background:#f39c12;"></div> 50 – 74%</div><div class="legend-right" style="color:#f39c12;">ปานกลาง</div></div>
+        <div class="legend-item" id="leg-4"><div class="legend-left"><div class="dot" style="background:#e74c3c;"></div> 75 – 100%</div><div class="legend-right" style="color:#e74c3c;">รุนแรง</div></div>
+      </div>
+      
+      <div style="font-size: 0.75rem; color: #95a5a6; text-align: center; margin-top: 10px;" id="timestampDisplay">ประเมินเมื่อ: -</div>
+    </div>
+
+    <div class="action-btn-row">
+      <button class="btn-outline" onclick="resetForm()">🔄 ทำใหม่</button>
+      <button class="btn-save" onclick="saveAsJPG()" id="btnSaveJPG">💾 บันทึกผล (JPG)</button>
+    </div>
+    
+    <!-- ปุ่มกลับหน้าหลักในหน้าผลลัพธ์ -->
+    <div style="padding: 0 15px; margin-top: 15px;">
+      <button type="button" class="btn-outline" style="width: 100%; border-color: var(--primary-color); color: var(--primary-color);" onclick="goHome()">
+        ← กลับไปหน้ารวมแบบประเมิน
+      </button>
+    </div>
+
+    <div class="hospital-contact">
+      <div class="fw-bold">สอบถามหรือให้คำแนะนำเพิ่มเติม</div>
+      <div>โรงพยาบาลเจ้าพระยายมราช</div>
+      <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 30px; margin-top: 10px; font-size: 0.9rem;">📞 โทร 035-514-999</div>
+    </div>
+    <div class="footer">Copyright. 2026 © Chaophraya Yommarat Hospital<br>All rights reserved.</div>
+  </div>
+
+</div>
+
+<script>
+  const labels = ["ไม่มีเลย", "น้อย", "ปานกลาง", "มาก", "มากที่สุด"];
+  const qData = {
+    pain: { desc: "ระดับความเจ็บปวด", list: ["เมื่อเดินบนพื้นราบ", "เมื่อเดินขึ้นลงบันได", "ขณะนอนบนเตียงในตอนกลางคืน", "ขณะนั่งพัก", "ขณะยืนตรง"] },
+    stiffness: { desc: "ระดับความตึง/ฝืดของข้อ", list: ["ในตอนเช้าหลังตื่นนอน", "หลังจากการนั่ง พัก หรือนอนระหว่างวัน"] },
+    function: { desc: "ระดับความยากลำบาก", list: ["เดินลงบันได", "เดินขึ้นบันได", "ลุกขึ้นจากที่นั่ง", "ยืน", "ก้มเก็บของที่พื้น", "เดินบนพื้นราบ", "เข้าหรือออกจากรถยนต์", "ไปซื้อของ/ช้อปปิ้ง", "ใส่ถุงเท้าหรือรองเท้า", "ถอดถุงเท้าหรือรองเท้า", "ลุกจากเตียงนอน", "เข้าไปอาบน้ำ", "นั่ง", "นั่งหรือลุกจากชักโครก", "ทำงานบ้านหนัก", "ทำงานบ้านเบา", "ทำกิจวัตรส่วนตัวอื่นๆ"] }
+  };
+
+  // ฟังก์ชันกลับหน้าหลัก
+  function goHome() {
+    const btn = document.getElementById('btnBackHome');
+    if(btn) btn.innerHTML = "กำลังกลับ...";
+    const loader = document.getElementById('loadingOverlay');
+    if(loader) loader.style.display = 'flex';
+    
+    const fallbackUrl = window.location.href.split('?')[0];
+    const timer = setTimeout(function() {
+      if (window.top) window.top.location.href = fallbackUrl;
+      else window.location.href = fallbackUrl;
+    }, 2000);
+
+    google.script.run
+      .withSuccessHandler(function(url) {
+        clearTimeout(timer);
+        const target = url || fallbackUrl;
+        if (window.top) window.top.location.href = target;
+        else window.location.href = target;
+      })
+      .withFailureHandler(function() {
+        clearTimeout(timer);
+        if (window.top) window.top.location.href = fallbackUrl;
+        else window.location.href = fallbackUrl;
+      })
+      .getScriptUrl();
+  }
+
+  function selectGender(gender) {
+    document.getElementById('genderMaleBtn').className = 'gender-btn';
+    document.getElementById('genderFemaleBtn').className = 'gender-btn';
+    if (gender === 'ชาย') {
+      document.getElementById('genderMaleBtn').classList.add('selected-male');
+      document.getElementById('gender_male').checked = true;
+    } else {
+      document.getElementById('genderFemaleBtn').classList.add('selected-female');
+      document.getElementById('gender_female').checked = true;
+    }
+  }
+
+  function renderQuestions(containerId, dataObj, prefix) {
+    let html = '';
+    dataObj.list.forEach((q, idx) => {
+      let qNum = idx + 1;
+      let name = prefix + qNum;
+      let btnsHtml = '';
+      for(let i=0; i<=4; i++) {
+        btnsHtml += `
+          <label class="score-btn" id="lbl_${name}_${i}" onclick="selectOption('${name}', ${i})">
+            <input type="radio" name="${name}" value="${i}">
+            <div class="score-num">${i}</div>
+            <div class="score-label">${labels[i]}</div>
+          </label>
+        `;
+      }
+      html += `
+        <div class="question-card" id="card_${name}">
+          <div class="q-number" id="check_${name}">${name}</div>
+          <div class="q-text">${q}</div>
+          <div class="q-desc">${dataObj.desc}</div>
+          <div class="score-group">${btnsHtml}</div>
+        </div>
+      `;
+    });
+    document.getElementById(containerId).innerHTML = html;
+  }
+
+  function selectOption(qName, value) {
+    for(let i=0; i<=4; i++) { document.getElementById(`lbl_${qName}_${i}`).className = 'score-btn'; }
+    document.getElementById(`lbl_${qName}_${value}`).classList.add(`selected-${value}`);
+    document.getElementById(`check_${qName}`).innerHTML = `${qName} ✓`;
+  }
+
+  window.onload = function() {
+    renderQuestions('painQuestions', qData.pain, 'P');
+    renderQuestions('stiffnessQuestions', qData.stiffness, 'S');
+    renderQuestions('functionQuestions', qData.function, 'F');
+  };
+
+  function updateGenderStyle() {
+    const male = document.getElementById('gender_male').checked;
+    const female = document.getElementById('gender_female').checked;
+    document.getElementById('genderMaleBtn').className = male ? 'gender-btn selected-male' : 'gender-btn';
+    document.getElementById('genderFemaleBtn').className = female ? 'gender-btn selected-female' : 'gender-btn';
+  }
+
+  function updateEvalStageStyle() {
+    const radios = document.getElementsByName('evalStage');
+    radios.forEach(radio => {
+      const btnId = 'evalStage_' + radio.value.replace(/ /g, '_');
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.className = radio.checked ? 'eval-stage-btn selected' : 'eval-stage-btn';
+      }
+    });
+  }
+
+  function nextStep(step) {
+    if (step === 1) {
+      const prefix = document.getElementById('prefixSelect').value;
+      const name = document.getElementById('nameInput').value.trim();
+      const hn = document.getElementById('hnInput').value.trim();
+      const gender = document.querySelector('input[name="gender"]:checked');
+      const age = document.getElementById('ageInput').value;
+      const evalStageRadio = document.querySelector('input[name="evalStage"]:checked');
+      const evalStage = evalStageRadio ? evalStageRadio.value : '';
+      
+      if (!prefix || !name || !hn || !gender || !age || parseInt(age) <= 0 || !evalStage) {
+        Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลผู้ป่วย และเลือกระยะการประเมินให้ครบถ้วนก่อนเริ่มทำแบบประเมินครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } });
+        return;
+      }
+    }
+    
+    // ตรวจสอบ Step 1 -> Step 2 (ความเจ็บปวด Pain P1-P5)
+    if (step === 2) {
+      for (let i = 1; i <= 5; i++) {
+        if (!document.querySelector(`input[name="P${i}"]:checked`)) {
+          Swal.fire({ icon: 'info', title: 'ข้อที่ P' + i + ' ยังไม่ได้ตอบ', text: 'กรุณาตอบคำถามด้านความเจ็บปวดให้ครบทุกข้อ (ข้อ P' + i + ') ครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { document.getElementById('card_P' + i).scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+          document.getElementById('card_P' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+    }
+
+    // ตรวจสอบ Step 2 -> Step 3 (ความตึงฝืด Stiffness S1-S2)
+    if (step === 3) {
+      for (let i = 1; i <= 2; i++) {
+        if (!document.querySelector(`input[name="S${i}"]:checked`)) {
+          Swal.fire({ icon: 'info', title: 'ข้อที่ S' + i + ' ยังไม่ได้ตอบ', text: 'กรุณาตอบคำถามด้านความตึงฝืดให้ครบทุกข้อ (ข้อ S' + i + ') ครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { document.getElementById('card_S' + i).scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+          document.getElementById('card_S' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+    }
+
+    document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function submitForm() {
+    // ดึงค่าข้อมูลคนไข้และลบช่องว่าง
+    const prefix = document.getElementById('prefixSelect').value;
+    const name = document.getElementById('nameInput').value.trim();
+    const hn = document.getElementById('hnInput').value.trim();
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const age = document.getElementById('ageInput').value;
+    
+    // ตรวจสอบความถูกต้องและแจ้งเตือนย้อนไปแต่ละจุด
+    if (!prefix || !name || !hn || !gender || !age || parseInt(age) <= 0) {
+      Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณากรอกข้อมูลผู้ป่วยให้ถูกต้องและครบถ้วนก่อนส่งแบบประเมินครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { nextStep(0); });
+      return;
+    }
+
+    // ตรวจสอบคำตอบ Pain (P1-P5)
+    for (let i = 1; i <= 5; i++) {
+      if (!document.querySelector(`input[name="P${i}"]:checked`)) {
+        Swal.fire({ icon: 'info', title: 'ข้อที่ P' + i + ' ยังไม่ได้ตอบ', text: 'กรุณาตอบคำถามด้านความเจ็บปวดให้ครบทุกข้อ (ข้อ P' + i + ') ครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { nextStep(1); document.getElementById('card_P' + i).scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+        document.getElementById('card_P' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    // ตรวจสอบคำตอบ Stiffness (S1-S2)
+    for (let i = 1; i <= 2; i++) {
+      if (!document.querySelector(`input[name="S${i}"]:checked`)) {
+        Swal.fire({ icon: 'info', title: 'ข้อที่ S' + i + ' ยังไม่ได้ตอบ', text: 'กรุณาตอบคำถามด้านความตึงฝืดให้ครบทุกข้อ (ข้อ S' + i + ') ครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { nextStep(2); document.getElementById('card_S' + i).scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+        document.getElementById('card_S' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    // ตรวจสอบคำตอบ Function (F1-F17)
+    for (let i = 1; i <= 17; i++) {
+      if (!document.querySelector(`input[name="F${i}"]:checked`)) {
+        Swal.fire({ icon: 'info', title: 'ข้อที่ F' + i + ' ยังไม่ได้ตอบ', text: 'กรุณาตอบคำถามด้านการทำกิจวัตรให้ครบทุกข้อ (ข้อ F' + i + ') ครับ', confirmButtonColor: '#2e7d32', customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' } }).then(() => { document.getElementById('card_F' + i).scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+        document.getElementById('card_F' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    const form = document.getElementById('womacForm');
+    const formData = new FormData(form);
+    let pain = 0, stiff = 0, func = 0, rawScores = [];
+
+    for(let i=1; i<=5; i++) { let v = parseInt(formData.get('P'+i) || 0); pain += v; rawScores.push(v); }
+    for(let i=1; i<=2; i++) { let v = parseInt(formData.get('S'+i) || 0); stiff += v; rawScores.push(v); }
+    for(let i=1; i<=17; i++) { let v = parseInt(formData.get('F'+i) || 0); func += v; rawScores.push(v); }
+
+    let total = pain + stiff + func;
+    let percent = Math.round((total / 96) * 100);
+    
+    let severity = ""; let hlId = ""; let themeColor = "";
+    if(percent <= 24) { severity = "น้อย / ปกติ"; hlId = "leg-1"; themeColor = "#2ecc71"; } 
+    else if(percent <= 49) { severity = "เล็กน้อย"; hlId = "leg-2"; themeColor = "#3498db"; } 
+    else if(percent <= 74) { severity = "ปานกลาง"; hlId = "leg-3"; themeColor = "#f39c12"; } 
+    else { severity = "รุนแรง"; hlId = "leg-4"; themeColor = "#e74c3c"; } 
+
+    const payload = {
+      hn: hn,
+      prefix: prefix,
+      nameSurname: name,
+      gender: gender.value,
+      age: parseInt(age),
+      jointType: 'Hip',
+      evalStage: document.querySelector('input[name="evalStage"]:checked').value,
+      painScore: pain,
+      stiffnessScore: stiff, 
+      functionScore: func,
+      totalScore: total,
+      severity: severity,
+      rawScores: rawScores
+    };
+
+    google.script.run.withSuccessHandler(function() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      showResult(payload, percent, hlId, themeColor);
+    }).withFailureHandler(function(err) {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการบันทึก', text: err.message, confirmButtonColor: '#ef4444', customClass: { popup: 'rounded-4 shadow-lg border-0' } });
+    }).submitWomacData(payload);
+  }
+
+  function showResult(data, percent, hlId, themeColor) {
+    document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+    document.getElementById('resultPage').classList.add('active');
+    window.scrollTo(0, 0);
+    
+    let now = new Date();
+    document.getElementById('timestampDisplay').innerText = `ประเมินเมื่อ: ${now.toLocaleDateString('th-TH')} เวลา ${now.toLocaleTimeString('th-TH')} น.`;
+
+    // อัปเดตข้อมูลผู้ป่วยในผลสรุป
+    document.getElementById('resPatientName').innerText = `${data.prefix} ${data.nameSurname}`;
+    document.getElementById('resPatientHn').innerText = data.hn;
+    document.getElementById('resPatientGender').innerText = data.gender;
+    document.getElementById('resPatientAge').innerText = data.age;
+
+    document.getElementById('resTotal').innerHTML = `${data.totalScore}<span> / 96</span>`;
+    document.getElementById('resTotal').style.color = themeColor;
+    document.getElementById('resPercent').innerText = percent + "%";
+    document.getElementById('resPercent').style.color = themeColor;
+    document.getElementById('resSeverity').innerText = data.severity;
+    document.getElementById('resSeverity').style.backgroundColor = themeColor;
+    document.getElementById('resPain').innerText = data.painScore;
+    document.getElementById('resStiff').innerText = data.stiffnessScore;
+    document.getElementById('resFunc').innerText = data.functionScore;
+
+    let pPerc = Math.round((data.painScore/20)*100); let sPerc = Math.round((data.stiffnessScore/8)*100); let fPerc = Math.round((data.functionScore/68)*100);
+    document.getElementById('txtPainPerc').innerText = `${data.painScore}/20 (${pPerc}%)`; document.getElementById('barPain').style.width = pPerc + '%';
+    document.getElementById('txtStiffPerc').innerText = `${data.stiffnessScore}/8 (${sPerc}%)`; document.getElementById('barStiff').style.width = sPerc + '%';
+    document.getElementById('txtFuncPerc').innerText = `${data.functionScore}/68 (${fPerc}%)`; document.getElementById('barFunc').style.width = fPerc + '%';
+
+    document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('highlight-row'));
+    document.getElementById(hlId).classList.add('highlight-row');
+  }
+
+  function updateEvalStageStyle() {
+    const radios = document.getElementsByName('evalStage');
+    radios.forEach(radio => {
+      const btnId = 'evalStage_' + radio.value.replace(/ /g, '_');
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.className = radio.checked ? 'eval-stage-btn selected' : 'eval-stage-btn';
+      }
+    });
+  }
+
+  function resetForm() {
+    document.getElementById('womacForm').reset();
+    document.getElementById('jointTypeInput').value = 'Hip';
+    document.getElementById('genderMaleBtn').className = 'gender-btn';
+    document.getElementById('genderFemaleBtn').className = 'gender-btn';
+    document.querySelectorAll('.eval-stage-btn').forEach(btn => btn.className = 'eval-stage-btn');
+    document.querySelectorAll('.score-btn').forEach(el => el.className = 'score-btn');
+    document.querySelectorAll('.q-number').forEach(el => {
+      let originalId = el.id.replace('check_', '');
+      el.innerHTML = originalId;
+    });
+    document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+    document.getElementById('step0').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function saveAsJPG() {
+    const btn = document.getElementById('btnSaveJPG');
+    btn.innerText = "กำลังบันทึก...";
+    const captureArea = document.getElementById('captureArea');
+    html2canvas(captureArea, { scale: 2, backgroundColor: "#f4f7f6" }).then(canvas => {
+      let link = document.createElement('a');
+      link.download = 'WOMAC_Result_' + new Date().getTime() + '.jpg';
+      link.href = canvas.toDataURL('image/jpeg', 0.9);
+      link.click();
+      btn.innerText = "💾 บันทึกผล (JPG)";
+    });
+  }
+</script>
+</body>
+</html>

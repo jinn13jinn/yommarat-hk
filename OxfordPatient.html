@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <title>Oxford Score - Chaophraya Yommarat Hospital</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #00897b;
+      --secondary-color: #004d40;
+      --accent-color: #26a69a;
+      --bg-color: #f0fdfa;
+      --card-bg: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+
+      --c-excellent: #10b981;
+      --c-good: #3b82f6;
+      --c-moderate: #f59e0b;
+      --c-severe: #ef4444;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      padding: 0;
+    }
+
+    .app-container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: #ffffff;
+      min-height: 100vh;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      padding: 24px 20px;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 6px 20px rgba(0, 137, 123, 0.25);
+      position: relative;
+    }
+
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-back-home:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .step-container {
+      display: none;
+      padding-bottom: 90px;
+    }
+
+    .step-container.active {
+      display: block;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      margin: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      border: 1px solid #e2e8f0;
+    }
+
+    .form-label-custom {
+      font-weight: 600;
+      color: #334155;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .form-control-custom {
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.25s;
+      background-color: #f8fafc;
+    }
+
+    .form-control-custom:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(0, 137, 123, 0.12);
+      outline: none;
+      background-color: #fff;
+    }
+
+    .gender-select-group,
+    .eval-stage-group {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .gender-btn,
+    .eval-stage-btn {
+      display: block;
+      text-align: center;
+      padding: 12px 10px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      background: white;
+      color: #64748b;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .gender-btn input,
+    .eval-stage-btn input {
+      display: none;
+    }
+
+    .gender-btn.selected-male {
+      background: #e0f2fe !important;
+      border-color: #0284c7 !important;
+      color: #0369a1 !important;
+    }
+
+    .gender-btn.selected-female {
+      background: #fce7f3 !important;
+      border-color: #db2777 !important;
+      color: #be185d !important;
+    }
+
+    .eval-stage-btn.selected {
+      background: #ccfbf1 !important;
+      border-color: var(--primary-color) !important;
+      color: var(--secondary-color) !important;
+      font-weight: 700;
+    }
+
+    .joint-select-container {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .joint-btn {
+      flex: 1;
+      text-align: center;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 14px 10px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .joint-btn input {
+      display: none;
+    }
+
+    .joint-btn.selected {
+      border-color: var(--primary-color);
+      background: #f0fdfa;
+      box-shadow: 0 4px 12px rgba(0, 137, 123, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .joint-title {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 1.05rem;
+    }
+
+    /* Question Cards */
+    .question-card {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      margin: 14px 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      border: 1px solid #e2e8f0;
+      transition: border-color 0.2s;
+    }
+
+    .q-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .q-badge {
+      background: #ccfbf1;
+      color: var(--secondary-color);
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .q-badge.done {
+      background: #10b981;
+      color: white;
+    }
+
+    .q-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.45;
+    }
+
+    .choices-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .choice-btn:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .choice-btn input {
+      display: none;
+    }
+
+    .choice-btn.selected {
+      background: #f0fdfa;
+      border-color: var(--primary-color);
+      color: var(--secondary-color);
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 137, 123, 0.12);
+    }
+
+    .choice-score-badge {
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .choice-btn.selected .choice-score-badge {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .btn-action {
+      max-width: 600px;
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 14px rgba(0, 137, 123, 0.3);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-action:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    /* Result View */
+    .result-header-card {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 26px 20px;
+      margin: 16px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 137, 123, 0.25);
+    }
+
+    .score-circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: white;
+      color: var(--secondary-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 16px auto;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-circle .score-num {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .score-circle .score-max {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .criteria-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .criteria-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .criteria-item.active {
+      font-weight: 700;
+      border: 2px solid var(--primary-color);
+      background: #f0fdfa;
+    }
+
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loadingOverlay">
+    <div class="spinner-border text-teal" style="width: 3.2rem; height: 3.2rem; color: var(--primary-color);"
+      role="status"></div>
+    <div class="mt-3 fw-bold" style="color: var(--secondary-color); font-size: 1.1rem;">กำลังบันทึกคะแนน...</div>
+    <div class="small text-muted">เชื่อมต่อฐานข้อมูล รพ.เจ้าพระยายมราช</div>
+  </div>
+
+  <div class="app-container">
+    <form id="oxfordForm">
+      <!-- Step 0: Patient Info -->
+      <div id="step0" class="step-container active">
+        <div class="app-header">
+          <h4 class="mb-1 fw-bold">แบบประเมินอาการข้อต่อ (Oxford Score)</h4>
+          <p class="mb-1" style="font-size: 0.95rem; opacity: 0.95;">Oxford Knee / Hip Score Questionnaire</p>
+          <p class="mb-0" style="font-size: 0.9rem; font-weight: 600; color: #ccfbf1;">โรงพยาบาลเจ้าพระยายมราช</p>
+
+          <button type="button" class="btn-back-home" onclick="goHome()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            กลับหน้าหลัก
+          </button>
+        </div>
+
+        <div class="form-card">
+          <h5 class="mb-3 text-center fw-bold"
+            style="color: var(--primary-color); border-bottom: 2px solid #ccfbf1; padding-bottom: 10px;">ข้อมูลผู้ป่วย
+          </h5>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="hnInput">เลขประจำตัวผู้ป่วย (HN) (ดูจากบัตรประจำตัวผู้ป่วย) <span
+                class="text-danger">*</span></label>
+            <input type="text" class="form-control-custom" id="hnInput" placeholder="ระบุเลข HN เช่น A1234567" required>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <label class="form-label-custom" for="prefixSelect">คำนำหน้า <span class="text-danger">*</span></label>
+              <select class="form-control-custom" id="prefixSelect" style="appearance: auto; padding-right: 5px;"
+                required>
+                <option value="" disabled selected>เลือก...</option>
+                <option value="นาย">นาย</option>
+                <option value="นาง">นาง</option>
+                <option value="นางสาว">นางสาว</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="col-8">
+              <label class="form-label-custom" for="nameInput">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="nameInput" placeholder="กรอกชื่อและนามสกุล" required>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label-custom">เพศ <span class="text-danger">*</span></label>
+              <div class="gender-select-group">
+                <label class="gender-btn" id="genderMaleBtn">
+                  <input type="radio" name="gender" value="ชาย" onchange="updateGenderStyle()">
+                  ชาย
+                </label>
+                <label class="gender-btn" id="genderFemaleBtn">
+                  <input type="radio" name="gender" value="หญิง" onchange="updateGenderStyle()">
+                  หญิง
+                </label>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label-custom" for="ageInput">อายุ (ปี) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control-custom" id="ageInput" placeholder="ระบุอายุ" min="1" max="120"
+                required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom">ระยะการประเมิน <span class="text-danger">*</span></label>
+            <div class="eval-stage-group">
+              <label class="eval-stage-btn" id="evalStage_Pre-Op">
+                <input type="radio" name="evalStage" value="Pre-Op" onchange="updateEvalStageStyle()">
+                ก่อนผ่าตัด (Pre-Op)
+              </label>
+              <label class="eval-stage-btn" id="evalStage_Post-Op_3_Months">
+                <input type="radio" name="evalStage" value="Post-Op 3 Months" onchange="updateEvalStageStyle()">
+                หลังผ่าตัด 3 เดือน
+              </label>
+              <label class="eval-stage-btn" id="evalStage_Post-Op_6_Months">
+                <input type="radio" name="evalStage" value="Post-Op 6 Months" onchange="updateEvalStageStyle()">
+                หลังผ่าตัด 6 เดือน
+              </label>
+              <label class="eval-stage-btn" id="evalStage_Post-Op_1_Year">
+                <input type="radio" name="evalStage" value="Post-Op 1 Year" onchange="updateEvalStageStyle()">
+                หลังผ่าตัด 1 ปี
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <button type="button" class="btn-action" onclick="nextStep(1)">เริ่มทำแบบประเมิน →</button>
+        </div>
+      </div>
+
+      <!-- Step 1: Oxford Assessment Form (12 Questions) -->
+      <div id="step1" class="step-container pt-3">
+
+        <!-- Joint Side Selection -->
+        <div class="px-3">
+          <div class="joint-select-container">
+            <label class="joint-btn selected" id="jointBtnKnee">
+              <input type="radio" name="jointSide" value="ข้อเข่า" checked onchange="updateJointStyle()">
+              <div class="joint-title">🦵 ข้อเข่า (Knee)</div>
+            </label>
+            <label class="joint-btn" id="jointBtnHip">
+              <input type="radio" name="jointSide" value="ข้อสะโพก" onchange="updateJointStyle()">
+              <div class="joint-title">🦴 ข้อสะโพก (Hip)</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="px-3">
+          <div class="alert alert-info py-2 px-3 small rounded-3 mb-2"
+            style="background: #e0f2fe; border-color: #bae6fd; color: #0369a1;">
+            💡 กรุณาตอบคำถามทั้ง 12 ข้อตามความเป็นจริงในช่วง 4 สัปดาห์ที่ผ่านมา
+          </div>
+        </div>
+
+        <!-- Container for dynamic Oxford questions -->
+        <div id="questionsContainer"></div>
+
+        <div class="bottom-bar">
+          <button type="button" class="btn-action" onclick="submitForm()">คำนวณและบันทึกคะแนน ✓</button>
+        </div>
+      </div>
+
+      <!-- Result View -->
+      <div id="resultPage" class="step-container">
+        <div id="captureArea">
+          <div class="result-header-card">
+            <h4 class="fw-bold mb-1">ผลการประเมิน Oxford Score</h4>
+            <p class="mb-0 small" style="opacity: 0.9;">โรงพยาบาลเจ้าพระยายมราช</p>
+            <div class="score-circle">
+              <div class="score-num" id="resTotal">0</div>
+              <div class="score-max">/ 48 คะแนน</div>
+            </div>
+            <div class="badge rounded-pill px-3 py-2 fw-bold" id="resSeverityBadge"
+              style="font-size: 1rem; background: white; color: var(--secondary-color);">
+              -
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h6 class="fw-bold mb-3" style="color: var(--primary-color);">ข้อมูลผู้รับการประเมิน</h6>
+            <div class="row g-2 small">
+              <div class="col-6"><strong>HN:</strong> <span id="resPatientHn">-</span></div>
+              <div class="col-6"><strong>ชื่อ-สกุล:</strong> <span id="resPatientName">-</span></div>
+              <div class="col-6"><strong>เพศ:</strong> <span id="resPatientGender">-</span></div>
+              <div class="col-6"><strong>อายุ:</strong> <span id="resPatientAge">-</span> ปี</div>
+              <div class="col-6"><strong>ข้อที่ประเมิน:</strong> <span id="resJointSide">-</span></div>
+              <div class="col-6"><strong>ระยะประเมิน:</strong> <span id="resEvalStage">-</span></div>
+            </div>
+            <div class="text-muted small mt-2 pt-2 border-top" id="timestampDisplay">ประเมินเมื่อ: -</div>
+          </div>
+
+          <div class="criteria-card">
+            <h6 class="fw-bold mb-2 text-secondary">เกณฑ์การแปลผลคะแนน Oxford Score (0 - 48 คะแนน):</h6>
+            <div class="criteria-item" id="cri_40_48">
+              <span>40 - 48 คะแนน: การทำงานของข้อดีเยี่ยม (Satisfactory)</span>
+              <span class="badge bg-success">ดีเยี่ยม</span>
+            </div>
+            <div class="criteria-item" id="cri_30_39">
+              <span>30 - 39 คะแนน: มีอาการเล็กน้อยถึงปานกลาง (Mild to Moderate)</span>
+              <span class="badge bg-primary">เล็กน้อย-ปานกลาง</span>
+            </div>
+            <div class="criteria-item" id="cri_20_29">
+              <span>20 - 29 คะแนน: มีอาการปานกลางถึงรุนแรง (Moderate to Severe)</span>
+              <span class="badge bg-warning text-dark">ปานกลาง-รุนแรง</span>
+            </div>
+            <div class="criteria-item" id="cri_0_19">
+              <span>0 - 19 คะแนน: มีอาการรุนแรงมาก (Severe Arthritis)</span>
+              <span class="badge bg-danger">รุนแรงมาก</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-3 mb-4 d-grid gap-2">
+          <button type="button" class="btn btn-success py-3 fw-bold rounded-3 shadow-sm" id="btnSaveJPG"
+            onclick="saveAsJPG()">
+            💾 บันทึกผลเป็นรูปภาพ (JPG)
+          </button>
+          <button type="button" class="btn btn-outline-secondary py-2 fw-bold rounded-3" onclick="resetForm()">
+            🔄 ทำแบบประเมินใหม่
+          </button>
+          <button type="button" class="btn btn-outline-primary py-2 fw-bold rounded-3" onclick="goHome()">
+            🏠 กลับหน้าหลัก
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const oxfordQuestions = [
+      {
+        id: 1,
+        text: "ในช่วง 4 สัปดาห์ที่ผ่านมา ท่านมีอาการปวดข้ออย่างไรบ้าง?",
+        options: [
+          { text: "ปวดรุนแรงตลอดเวลา (Severe)", score: 0 },
+          { text: "ปวดมาก (Moderate / Severe)", score: 1 },
+          { text: "ปวดปานกลาง (Moderate)", score: 2 },
+          { text: "ปวดเล็กน้อย (Very mild)", score: 3 },
+          { text: "ไม่มีอาการปวดเลย (None)", score: 4 }
+        ]
+      },
+      {
+        id: 2,
+        text: "ท่านมีปัญหาในการล้างตัวหรือเช็ดตัว (เนื่องจากข้อต่อ) หรือไม่?",
+        options: [
+          { text: "ทำไม่ได้เลย (Impossible)", score: 0 },
+          { text: "ทำได้ยากมาก (Extreme difficulty)", score: 1 },
+          { text: "ทำได้ยากปานกลาง (Moderate difficulty)", score: 2 },
+          { text: "ทำได้ยากเล็กน้อย (Very little difficulty)", score: 3 },
+          { text: "ไม่มีปัญหาเลย (No difficulty)", score: 4 }
+        ]
+      },
+      {
+        id: 3,
+        text: "ท่านมีปัญหาในการขึ้น-ลง รถยนต์ หรือการใช้รถโดยสารสาธารณะ หรือไม่?",
+        options: [
+          { text: "ทำไม่ได้เลย (Impossible)", score: 0 },
+          { text: "ทำได้ยากมาก (Extreme difficulty)", score: 1 },
+          { text: "ทำได้ยากปานกลาง (Moderate difficulty)", score: 2 },
+          { text: "ทำได้ยากเล็กน้อย (Very little difficulty)", score: 3 },
+          { text: "ไม่มีปัญหาเลย (No difficulty)", score: 4 }
+        ]
+      },
+      {
+        id: 4,
+        text: "ท่านสามารถเดินได้นานเท่าใด ก่อนที่อาการปวดข้อจะทำให้ท่านต้องหยุดเดิน?",
+        options: [
+          { text: "เดินไม่ได้เลย หรือ ปวดตลอดเวลา", score: 0 },
+          { text: "เดินได้รอบๆ บ้านเท่านั้น (ไม่เกิน 5 นาที)", score: 1 },
+          { text: "เดินได้ประมาณ 5 ถึง 15 นาที", score: 2 },
+          { text: "เดินได้ประมาณ 16 ถึง 30 นาที", score: 3 },
+          { text: "เดินได้ไม่จำกัด / มากกว่า 60 นาที", score: 4 }
+        ]
+      },
+      {
+        id: 5,
+        text: "หลังจากรับประทานอาหารเสร็จ การลุกขึ้นจากเก้าอี้มีความเจ็บปวดเพียงใด?",
+        options: [
+          { text: "เจ็บปวดทนไม่ไหว (Unbearable)", score: 0 },
+          { text: "เจ็บปวดมาก (Severe)", score: 1 },
+          { text: "เจ็บปวดปานกลาง (Moderate)", score: 2 },
+          { text: "เจ็บปวดเล็กน้อย (Very mild)", score: 3 },
+          { text: "ไม่เจ็บปวดเลย (Not at all)", score: 4 }
+        ]
+      },
+      {
+        id: 6,
+        text: "ท่านต้องเดินกะเผลกเนื่องจากข้อต่อหรือไม่?",
+        options: [
+          { text: "กะเผลกตลอดเวลา (All the time)", score: 0 },
+          { text: "กะเผลกเป็นส่วนใหญ่ (Most of the time)", score: 1 },
+          { text: "กะเผลกบ่อยครั้ง (Often)", score: 2 },
+          { text: "กะเผลกบางครั้งเมื่อเริ่มเดิน (Sometimes)", score: 3 },
+          { text: "ไม่เคยกะเผลกเลย (Rarely / Never)", score: 4 }
+        ]
+      },
+      {
+        id: 7,
+        text: "ท่านสามารถคุกเข่า แล้วลุกขึ้นมาได้หรือไม่?",
+        options: [
+          { text: "ทำไม่ได้เลย (No, impossible)", score: 0 },
+          { text: "ทำได้ด้วยความยากลำบากอย่างยิ่ง (With extreme difficulty)", score: 1 },
+          { text: "ทำได้ด้วยความยากลำบากปานกลาง (With moderate difficulty)", score: 2 },
+          { text: "ทำได้ค่อนข้างง่าย (With little difficulty)", score: 3 },
+          { text: "ทำได้อย่างง่ายดาย (Yes, easily)", score: 4 }
+        ]
+      },
+      {
+        id: 8,
+        text: "อาการปวดข้อรบกวนการนอนหลับตอนกลางคืนของท่านหรือไม่?",
+        options: [
+          { text: "รบกวนทุกคืน (Every night)", score: 0 },
+          { text: "รบกวนเกือบทุกคืน (Most nights)", score: 1 },
+          { text: "รบกวนบางคืน (Some nights)", score: 2 },
+          { text: "รบกวนเพียง 1-2 คืน (1-2 nights)", score: 3 },
+          { text: "ไม่เคยรบกวนเลย (No nights)", score: 4 }
+        ]
+      },
+      {
+        id: 9,
+        text: "อาการปวดข้อรบกวนการทำงานหรือกิจกรรมประจำวันของท่านเพียงใด?",
+        options: [
+          { text: "รบกวนอย่างมากที่สุด (Totally)", score: 0 },
+          { text: "รบกวนมาก (Greatly)", score: 1 },
+          { text: "รบกวนปานกลาง (Moderately)", score: 2 },
+          { text: "รบกวนเล็กน้อย (A little bit)", score: 3 },
+          { text: "ไม่รบกวนเลย (Not at all)", score: 4 }
+        ]
+      },
+      {
+        id: 10,
+        text: "ท่านรู้สึกว่าข้อต่อของท่าน 'ทรุดตัวลง' หรือ 'หลุด/ยอมรับน้ำหนักไม่ได้' หรือไม่?",
+        options: [
+          { text: "ตลอดเวลา (All the time)", score: 0 },
+          { text: "บ่อยครั้ง (Most of the time)", score: 1 },
+          { text: "บางครั้ง (Often)", score: 2 },
+          { text: "เฉพาะเมื่อเริ่มเดิน (Sometimes)", score: 3 },
+          { text: "ไม่เคยรู้สึกเลย (Rarely / Never)", score: 4 }
+        ]
+      },
+      {
+        id: 11,
+        text: "ท่านสามารถไปซื้อของใช้ประจำวันด้วยตนเองได้หรือไม่?",
+        options: [
+          { text: "ทำไม่ได้เลย (No, impossible)", score: 0 },
+          { text: "ทำได้ด้วยความยากลำบากอย่างยิ่ง (With extreme difficulty)", score: 1 },
+          { text: "ทำได้ด้วยความยากลำบากปานกลาง (With moderate difficulty)", score: 2 },
+          { text: "ทำได้ค่อนข้างง่าย (With little difficulty)", score: 3 },
+          { text: "ทำได้อย่างง่ายดาย (Yes, easily)", score: 4 }
+        ]
+      },
+      {
+        id: 12,
+        text: "ท่านสามารถเดินลงบันไดได้หรือไม่?",
+        options: [
+          { text: "ลงไม่ได้เลย (No, impossible)", score: 0 },
+          { text: "ลงได้ด้วยความยากลำบากอย่างยิ่ง (With extreme difficulty)", score: 1 },
+          { text: "ลงได้ด้วยความยากลำบากปานกลาง (With moderate difficulty)", score: 2 },
+          { text: "ลงได้ค่อนข้างง่าย (With little difficulty)", score: 3 },
+          { text: "ลงได้อย่างง่ายดาย (Yes, easily)", score: 4 }
+        ]
+      }
+    ];
+
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      let html = '';
+
+      oxfordQuestions.forEach(q => {
+        html += `
+        <div class="question-card" id="card_Q${q.id}">
+          <div class="q-header">
+            <span class="q-badge" id="badge_Q${q.id}">ข้อ ${q.id}</span>
+            <div class="q-text">${q.text}</div>
+          </div>
+          <div class="choices-container">
+            ${q.options.map(opt => `
+              <label class="choice-btn" id="lbl_Q${q.id}_${opt.score}" onclick="selectChoice(${q.id}, ${opt.score})">
+                <input type="radio" name="Q${q.id}" value="${opt.score}">
+                <span>${opt.text}</span>
+                <span class="choice-score-badge">${opt.score} คะแนน</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function selectChoice(qId, score) {
+      for (let s = 0; s <= 4; s++) {
+        const lbl = document.getElementById(`lbl_Q${qId}_${s}`);
+        if (lbl) lbl.classList.remove('selected');
+      }
+      const target = document.getElementById(`lbl_Q${qId}_${score}`);
+      if (target) target.classList.add('selected');
+
+      const badge = document.getElementById(`badge_Q${qId}`);
+      if (badge) {
+        badge.classList.add('done');
+        badge.innerText = `ข้อ ${qId} ✓`;
+      }
+    }
+
+    function updateGenderStyle() {
+      const isMale = document.querySelector('input[name="gender"]:checked')?.value === 'ชาย';
+      document.getElementById('genderMaleBtn').className = isMale ? 'gender-btn selected-male' : 'gender-btn';
+      document.getElementById('genderFemaleBtn').className = !isMale ? 'gender-btn selected-female' : 'gender-btn';
+    }
+
+    function updateEvalStageStyle() {
+      const radios = document.querySelectorAll('input[name="evalStage"]');
+      radios.forEach(r => {
+        const parent = r.closest('.eval-stage-btn');
+        if (r.checked) {
+          parent.classList.add('selected');
+        } else {
+          parent.classList.remove('selected');
+        }
+      });
+    }
+
+    function updateJointStyle() {
+      const kneeChecked = document.querySelector('input[name="jointSide"][value="ข้อเข่า"]').checked;
+      document.getElementById('jointBtnKnee').className = kneeChecked ? 'joint-btn selected' : 'joint-btn';
+      document.getElementById('jointBtnHip').className = !kneeChecked ? 'joint-btn selected' : 'joint-btn';
+    }
+
+    function goHome() {
+      const loader = document.getElementById('loadingOverlay');
+      if (loader) loader.style.display = 'flex';
+      
+      const fallbackUrl = window.location.href.split('?')[0];
+      const timer = setTimeout(function() {
+        if (window.top) window.top.location.href = fallbackUrl;
+        else window.location.href = fallbackUrl;
+      }, 2000);
+
+      google.script.run
+        .withSuccessHandler(function (url) {
+          clearTimeout(timer);
+          const target = url || fallbackUrl;
+          if (window.top) window.top.location.href = target;
+          else window.location.href = target;
+        })
+        .withFailureHandler(function () {
+          clearTimeout(timer);
+          if (window.top) window.top.location.href = fallbackUrl;
+          else window.location.href = fallbackUrl;
+        })
+        .getScriptUrl();
+    }
+
+    function nextStep(step) {
+      if (step === 1) {
+        const hn = document.getElementById('hnInput').value.trim();
+        const prefix = document.getElementById('prefixSelect').value;
+        const name = document.getElementById('nameInput').value.trim();
+        const gender = document.querySelector('input[name="gender"]:checked');
+        const age = document.getElementById('ageInput').value;
+        const stage = document.querySelector('input[name="evalStage"]:checked');
+
+        if (!hn || !prefix || !name || !gender || !age || parseInt(age) <= 0 || !stage) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'ข้อมูลไม่ครบถ้วน',
+            text: 'กรุณากรอกข้อมูลผู้ป่วย และเลือกระยะการประเมินให้ครบถ้วนก่อนเริ่มทำแบบประเมินครับ',
+            confirmButtonColor: '#00897b',
+            customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' }
+          });
+          return;
+        }
+      }
+      document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('step' + step).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function submitForm() {
+      for (let i = 1; i <= 12; i++) {
+        if (!document.querySelector(`input[name="Q${i}"]:checked`)) {
+          Swal.fire({
+            icon: 'info',
+            title: `ข้อที่ ${i} ยังไม่ได้ตอบ`,
+            text: `กรุณาเลือกคำตอบสำหรับข้อที่ ${i} ก่อนบันทึกคะแนนครับ`,
+            confirmButtonColor: '#00897b',
+            customClass: { popup: 'rounded-4 shadow-lg border-0', confirmButton: 'rounded-pill px-4' }
+          }).then(() => {
+            document.getElementById(`card_Q${i}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          return;
+        }
+      }
+
+      document.getElementById('loadingOverlay').style.display = 'flex';
+
+      let totalScore = 0;
+      let rawAnswers = [];
+      for (let i = 1; i <= 12; i++) {
+        const val = parseInt(document.querySelector(`input[name="Q${i}"]:checked`).value);
+        totalScore += val;
+        rawAnswers.push(val);
+      }
+
+      const payload = {
+        hn: document.getElementById('hnInput').value.trim(),
+        prefix: document.getElementById('prefixSelect').value,
+        nameSurname: document.getElementById('nameInput').value.trim(),
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        age: parseInt(document.getElementById('ageInput').value),
+        jointSide: document.querySelector('input[name="jointSide"]:checked').value,
+        evalStage: document.querySelector('input[name="evalStage"]:checked').value,
+        totalScore: totalScore,
+        rawAnswers: rawAnswers
+      };
+
+      google.script.run
+        .withSuccessHandler(function (response) {
+          document.getElementById('loadingOverlay').style.display = 'none';
+          showResult(payload);
+        })
+        .withFailureHandler(function (err) {
+          document.getElementById('loadingOverlay').style.display = 'none';
+          Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาดในการบันทึก',
+            text: err.message,
+            confirmButtonColor: '#ef4444',
+            customClass: { popup: 'rounded-4 shadow-lg border-0' }
+          });
+        })
+        .submitOxfordData(payload);
+    }
+
+    function showResult(data) {
+      document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('resultPage').classList.add('active');
+      window.scrollTo(0, 0);
+
+      const now = new Date();
+      document.getElementById('timestampDisplay').innerText = `ประเมินเมื่อ: ${now.toLocaleDateString('th-TH')} เวลา ${now.toLocaleTimeString('th-TH')} น.`;
+
+      document.getElementById('resPatientName').innerText = `${data.prefix}${data.nameSurname}`;
+      document.getElementById('resPatientHn').innerText = data.hn;
+      document.getElementById('resPatientGender').innerText = data.gender;
+      document.getElementById('resPatientAge').innerText = data.age;
+      document.getElementById('resJointSide').innerText = data.jointSide;
+      document.getElementById('resEvalStage').innerText = data.evalStage;
+
+      document.getElementById('resTotal').innerText = data.totalScore;
+
+      document.querySelectorAll('.criteria-item').forEach(el => el.classList.remove('active'));
+      const badge = document.getElementById('resSeverityBadge');
+
+      if (data.totalScore >= 40) {
+        badge.innerText = 'การทำงานของข้อดีเยี่ยม (Satisfactory)';
+        badge.style.color = 'var(--c-excellent)';
+        document.getElementById('cri_40_48').classList.add('active');
+      } else if (data.totalScore >= 30) {
+        badge.innerText = 'มีอาการเล็กน้อยถึงปานกลาง (Mild to Moderate)';
+        badge.style.color = 'var(--c-good)';
+        document.getElementById('cri_30_39').classList.add('active');
+      } else if (data.totalScore >= 20) {
+        badge.innerText = 'มีอาการปานกลางถึงรุนแรง (Moderate to Severe)';
+        badge.style.color = 'var(--c-moderate)';
+        document.getElementById('cri_20_29').classList.add('active');
+      } else {
+        badge.innerText = 'มีอาการรุนแรงมาก (Severe Arthritis)';
+        badge.style.color = 'var(--c-severe)';
+        document.getElementById('cri_0_19').classList.add('active');
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('oxfordForm').reset();
+      document.getElementById('genderMaleBtn').className = 'gender-btn';
+      document.getElementById('genderFemaleBtn').className = 'gender-btn';
+      document.querySelectorAll('.eval-stage-btn').forEach(btn => btn.className = 'eval-stage-btn');
+      document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.q-badge').forEach(b => {
+        b.classList.remove('done');
+        b.innerText = b.id.replace('badge_', '');
+      });
+      document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+      document.getElementById('step0').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function saveAsJPG() {
+      const btn = document.getElementById('btnSaveJPG');
+      btn.innerText = "กำลังบันทึกรูปภาพ...";
+      const captureArea = document.getElementById('captureArea');
+      html2canvas(captureArea, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Oxford_${document.getElementById('resPatientHn').innerText}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.92);
+        link.click();
+        btn.innerText = "💾 บันทึกผลเป็นรูปภาพ (JPG)";
+      });
+    }
+
+    window.onload = function () {
+      renderQuestions();
+    };
+  </script>
+</body>
+
+</html>

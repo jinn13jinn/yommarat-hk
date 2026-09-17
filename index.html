@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Arthroplasty Score - Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #4caf50;
+      --bg-color: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Sarabun', sans-serif;
+      color: var(--text-main);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      padding-bottom: 30px;
+    }
+
+    .hero-header {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+      padding: 40px 20px 50px 20px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-header::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      bottom: -20px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .h-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+      opacity: 0.95;
+    }
+
+    .h-main {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .h-sub {
+      font-size: 0.95rem;
+      font-weight: 400;
+      opacity: 0.8;
+      margin-bottom: 25px;
+    }
+
+    .h-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 25px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      backdrop-filter: blur(5px);
+    }
+
+    .app-container {
+      max-width: 700px;
+      margin: -20px auto 0 auto;
+      padding: 0 15px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Modern Pill Tabs */
+    .hub-tabs-wrapper {
+      display: flex;
+      background: #e2e8f0;
+      border-radius: 16px;
+      padding: 5px;
+      gap: 6px;
+      margin-top: 15px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .hub-tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .hub-tab-btn:hover {
+      color: #1e293b;
+    }
+
+    .hub-tab-btn.active {
+      background: white;
+      color: #1e293b;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .hub-tab-badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .hub-tab-badge.patient {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .hub-tab-badge.staff {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Compact Cards */
+    .module-card {
+      background: white;
+      border-radius: 18px;
+      padding: 18px 18px 16px 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid #f1f5f9;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .module-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .card-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .icon-box {
+      width: 50px;
+      height: 50px;
+      min-width: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+    }
+
+    .info-box {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .m-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      line-height: 1.3;
+    }
+
+    .m-subtitle {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .m-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .c-tag {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 2px 9px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f1f5f9;
+      margin: 12px 0 10px 0;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qr-box {
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .qr-img {
+      width: 62px;
+      height: 62px;
+      object-fit: cover;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 2px;
+      background: white;
+      transition: transform 0.2s;
+    }
+
+    .qr-img:hover {
+      transform: scale(1.06);
+    }
+
+    .qr-hint {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.68);
+      color: white;
+      font-size: 0.58rem;
+      padding: 1px 4px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: white;
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-align: center;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .btn-action:hover {
+      color: white;
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      background-color: transparent;
+    }
+
+    #loader {
+      text-align: center;
+      padding: 50px 0;
+    }
+
+    /* Custom Modal สำหรับสแกน QR และกรอกรหัสผ่าน */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content-custom {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 90%;
+      position: relative;
+      animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-qr-img {
+      width: 300px;
+      height: 300px;
+      max-width: 100%;
+      object-fit: contain;
+      border: 2px solid #f1f5f9;
+      border-radius: 16px;
+      padding: 10px;
+    }
+
+    .modal-title-custom {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 20px;
+      color: var(--text-main);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      background: white;
+      color: #e74c3c;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 40px;
+      cursor: pointer;
+      border: 3px solid #e74c3c;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: #e74c3c;
+      color: white;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ส่วนเนื้อหาหลัก -->
+  <div class="main-content">
+    <div class="hero-header">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+        <img src="https://lh5.googleusercontent.com/d/1ItzcbO-gWMXXe7vFqoKtkGGGhskG9yYO" alt="Logo"
+          style="width: 80px; height: 80px; object-fit: contain; border-radius: 12px;">
+        <div style="text-align: center; text-md-start: left;">
+          <div class="h-title">Chaophraya Yommarat : Hip and Knee</div>
+          <div class="h-main">Arthroplasty Score</div>
+          <div class="h-sub">แบบประเมินผลลัพธ์การผ่าตัดเปลี่ยนข้อเทียม</div>
+        </div>
+      </div>
+      <div class="h-badge mt-3">สแกน QR หรือคลิกเพื่อเปิดแบบประเมิน</div>
+    </div>
+
+    <div class="app-container">
+      <!-- Tabs Navigation -->
+      <div class="hub-tabs-wrapper">
+        <button type="button" class="hub-tab-btn active" id="tabBtnPatient" onclick="switchHubTab('patient')">
+          <span style="font-size: 1.1rem;">👤</span> แบบประเมินสำหรับคนไข้
+          <span class="hub-tab-badge patient" id="patientCountBadge">-</span>
+        </button>
+        <button type="button" class="hub-tab-btn" id="tabBtnStaff" onclick="switchHubTab('staff')">
+          <span style="font-size: 1.1rem;">🔒</span> สำหรับเจ้าหน้าที่ดูแลผู้ป่วย
+          <span class="hub-tab-badge staff">Staff Only</span>
+        </button>
+      </div>
+
+      <div id="loader">
+        <div class="spinner-border" style="color: var(--secondary-color);" role="status"></div>
+        <div class="mt-2 text-secondary fw-bold">กำลังโหลดรายการแบบประเมิน...</div>
+      </div>
+
+      <!-- Tab 1: Patient Assessment Pane -->
+      <div id="panePatient" class="tab-pane active">
+        <div id="patientModuleList"></div>
+      </div>
+
+      <!-- Tab 2: Staff Only Pane -->
+      <div id="paneStaff" class="tab-pane">
+        <div id="staffModuleList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; font-size: 0.78rem; color: #94a3b8; margin-bottom: 10px; padding: 0 15px; font-weight: 500;">
+    Version 1.5.6 • Build 2026.09.17 (อัปเดตล่าสุด: 17/09/2026 10:30)
+  </div>
+  <div class="footer">
+    Copyright. 2026 © Chaophraya Yommarat Hospital | All rights reserved.
+  </div>
+
+  <!-- Modal สำหรับขยาย QR Code -->
+  <div id="qrModal" class="modal-overlay" onclick="closeQrModal()">
+    <div class="modal-content-custom" onclick="event.stopPropagation()">
+      <div class="close-btn" onclick="closeQrModal()">&times;</div>
+      <h5 class="text-secondary mb-3">สแกนด้วยกล้องมือถือเพื่อทำแบบประเมิน</h5>
+      <img id="modalQrImg" src="" alt="QR Code Large" class="modal-qr-img">
+      <div class="modal-title-custom" id="modalQrTitle"></div>
+    </div>
+  </div>
+
+  <!-- Modal สำหรับกรอกรหัสผ่านเจ้าหน้าที่ -->
+  <div id="passcodeModal" class="modal-overlay" onclick="closePasscodeModal()">
+    <div class="modal-content-custom" onclick="event.stopPropagation()"
+      style="max-width: 400px; padding: 25px; border-radius: 20px;">
+      <div class="close-btn" onclick="closePasscodeModal()">&times;</div>
+      <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
+      <h5 class="fw-bold mb-2" style="color: var(--text-main);">สำหรับเจ้าหน้าที่เท่านั้น</h5>
+      <p class="text-secondary small mb-4">กรุณาระบุรหัสผ่านตัวเลขส่วนบุคคลเพื่อเปิดแบบประเมิน</p>
+
+      <div class="mb-3 text-start">
+        <input type="password" class="form-control text-center fw-bold" id="staffPasscodeInput"
+          placeholder="กรอกรหัสผ่าน"
+          style="font-size: 1.5rem; letter-spacing: 4px; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1;"
+          maxlength="10">
+        <div id="passcodeError" class="text-danger small mt-2 fw-bold text-center" style="display: none;">
+          รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+      </div>
+
+      <button type="button" class="btn btn-danger w-100 py-2 fw-bold" id="btnSubmitPasscode" onclick="submitPasscode()"
+        style="border-radius: 12px; font-size: 1rem; background-color: #d32f2f; border: none; box-shadow: 0 4px 10px rgba(211,47,47,0.3);">
+        เข้าสู่ระบบแบบประเมิน &rarr;
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https:' + String.fromCharCode(47, 47) + 'script.google.com/macros/s/AKfycbzIjgtVWAcpKvcHI8P_IQ-vrFeoNubGy5WtWBaBUZMRXPfRe3ahRhcuGTk3_Kq6knJg9w/exec';
+    let activeModuleId = '';
+    let activeActionLink = '';
+
+    /* ข้อมูลโมดูลเริ่มต้น (สำหรับ GitHub Pages เพื่อการโหลดแบบทันที 0 วินาที) */
+    const DEFAULT_APP_CONFIG = [
+      {
+        module_id: 'womac',
+        title: 'แบบประเมินอาการข้อสะโพก',
+        subtitle: 'WOMAC',
+        description: 'Chaophraya Yommarat Hospital',
+        tag_score: '0-96 คะแนน',
+        tag_qty: '24 คำถาม',
+        tag_joint: 'เข่า + สะโพก',
+        theme_color: '#2e7d32',
+        qr_drive_id: '1lnRR1OLi86xkXIL1CR4tNMg4NY43-ULA',
+        action_link: SCRIPT_URL + '?page=womac',
+        user_type: 'PATIENT'
+      },
+      {
+        module_id: 'kss_pre',
+        title: 'แบบประเมินข้อเข่า KSS ก่อน-หลังผ่าตัด',
+        subtitle: 'KSS Pre-Post Op (สำหรับผู้ป่วย)',
+        description: 'แบบประเมินสมรรถภาพและการใช้งานข้อเข่าสำหรับผู้ป่วย ก่อน-หลัง ผ่าตัด',
+        tag_score: '0-180 คะแนน',
+        tag_qty: 'คำถาม 4 หมวด',
+        tag_joint: 'ข้อเข่า',
+        theme_color: '#e65100',
+        qr_drive_id: '1IwifrbPwxQ4rDMSI9PduQ0lE1Ls9sbSG',
+        action_link: SCRIPT_URL + '?page=kss_patient',
+        user_type: 'PATIENT'
+      },
+      {
+        module_id: 'fjs',
+        title: 'แบบประเมิน Forgotten Joint Score',
+        subtitle: 'FJS-12',
+        description: 'ประเมินความรู้สึกรับรู้ข้อเทียม',
+        tag_score: '0-100 คะแนน',
+        tag_qty: '12 คำถาม',
+        tag_joint: 'ข้อเข่า / ข้อสะโพก',
+        theme_color: '#0288d1',
+        qr_drive_id: '1e5bSMrw-5fIAUs2jYA_Tn3hE6tH94tgz',
+        action_link: SCRIPT_URL + '?page=fjs',
+        user_type: 'PATIENT'
+      },
+      {
+        module_id: 'oxford',
+        title: 'แบบประเมิน Oxford Knee/Hip Score',
+        subtitle: 'Oxford Score (12 คำถาม)',
+        description: 'แบบประเมินสมรรถภาพการใช้งานข้อต่อและระดับความเจ็บปวดในชีวิตประจำวัน',
+        tag_score: '0-48 คะแนน',
+        tag_qty: '12 คำถาม',
+        tag_joint: 'ข้อเข่า / สะโพก',
+        theme_color: '#6366f1',
+        qr_drive_id: '159T_8dM19tWn658jH0t_Fv4xQ4E66Pj2',
+        action_link: SCRIPT_URL + '?page=oxford',
+        user_type: 'PATIENT'
+      },
+      {
+        module_id: 'eq5d',
+        title: 'แบบประเมินคุณภาพชีวิต EQ-5D-5L',
+        subtitle: 'EuroQol Health Questionnaire',
+        description: 'แบบวัดภาวะสุขภาพ 5 มิติ (การเคลื่อนไหว, ดูแลตัวเอง, ประจำวัน, อาการ, ซึมเศร้า) พร้อม EQ-VAS',
+        tag_score: 'Index & VAS 0-100%',
+        tag_qty: '5 มิติ + VAS',
+        tag_joint: 'สุขภาพองค์รวม',
+        theme_color: '#be185d',
+        qr_drive_id: '18WwY1k4_kGv_8WJ6h7xJ_8x4k2L5M1N',
+        action_link: SCRIPT_URL + '?page=eq5d',
+        user_type: 'PATIENT'
+      },
+      {
+        module_id: 'kss_physician',
+        title: 'บันทึกข้อมูลข้อเข่าทางคลินิก (สำหรับแพทย์)',
+        subtitle: 'KSS Objective Indicators',
+        description: 'ระบบบันทึกผลมุมการงอเข่า ความมั่นคง และความโก่งเกของเข่าผู้ป่วย',
+        tag_score: 'คะแนนเต็ม 100',
+        tag_qty: 'สำหรับแพทย์',
+        tag_joint: 'ข้อเข่า',
+        theme_color: '#b91c1c',
+        qr_drive_id: '1w9nDnZEyAugJIEkxviwdmBW00PVArBsn',
+        action_link: SCRIPT_URL + '?page=kss_physician',
+        user_type: 'STAFF'
+      },
+      {
+        module_id: 'dashboard',
+        title: 'ภาพรวมระบบและสรุปสถิติ (Master Dashboard)',
+        subtitle: 'Executive & Staff Dashboard',
+        description: 'แดชบอร์ดภาพรวมคะแนนการประเมินข้อเทียม ติดตามรายบุคคล และส่งออกรายงาน Excel',
+        tag_score: 'ภาพรวมคะแนน',
+        tag_qty: 'ติดตามผู้ป่วย',
+        tag_joint: 'สถิติคลินิก',
+        theme_color: '#1e293b',
+        qr_drive_id: '',
+        action_link: SCRIPT_URL + '?page=dashboard',
+        user_type: 'STAFF'
+      }
+    ];
+
+    window.addEventListener('DOMContentLoaded', function () {
+      function showBrowserWarning() {
+        document.getElementById('loader').innerHTML = `
+        <div class="text-danger fw-bold mt-3" style="font-size: 3rem;">🛑</div>
+        <div class="text-danger fw-bold mt-2" style="font-size: 1.2rem;">ระบบไม่รองรับเบราว์เซอร์นี้ (LINE/FB)</div>
+        <div class="text-muted mt-2" style="font-size: 0.95rem;">แอปพลิเคชันที่คุณกำลังใช้อยู่มีการบล็อกการเชื่อมต่อข้อมูล<br>กรุณากดที่ไอคอนจุด 3 จุด (มุมขวาบน หรือมุมขวาล่าง)<br>แล้วเลือก <b>"เปิดในเบราว์เซอร์เริ่มต้น"</b> หรือ <b>"Open in Safari/Chrome"</b> เพื่อใช้งานครับ</div>
+      `;
+        const adminBtn = document.querySelector("button[onclick*=\"triggerPasscodeModal('dashboard')\"]");
+        if (adminBtn) adminBtn.parentElement.style.display = 'none';
+      }
+
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      if (/Line/i.test(ua) || /FBAN/i.test(ua) || /FBAV/i.test(ua) || /Instagram/i.test(ua)) {
+        showBrowserWarning();
+        return;
+      }
+
+      /* ตรวจจับสภาพแวดล้อม: Google Apps Script หรือ GitHub Pages */
+      const isGoogleAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
+
+      if (isGoogleAppsScript) {
+        const fallbackTimeout = setTimeout(function () {
+          showBrowserWarning();
+        }, 4000);
+
+        google.script.run
+          .withSuccessHandler(function (data) {
+            clearTimeout(fallbackTimeout);
+            renderModules(data && data.length > 0 ? data : DEFAULT_APP_CONFIG);
+          })
+          .withFailureHandler(function (error) {
+            clearTimeout(fallbackTimeout);
+            renderModules(DEFAULT_APP_CONFIG);
+          })
+          .getAppConfigData();
+      } else {
+        /* ทำงานบน GitHub Pages (Standalone) - เรนเดอร์ทันที */
+        renderModules(DEFAULT_APP_CONFIG);
+
+        /* ซิงค์ข้อมูลล่าสุดจาก Google Apps Script ในพื้นหลัง */
+        const cbName = 'jsonp_config_' + Math.round(100000 * Math.random());
+        window[cbName] = function (data) {
+          delete window[cbName];
+          if (data && data.length > 0) renderModules(data);
+        };
+        const scriptEl = document.createElement('script');
+        scriptEl.src = SCRIPT_URL + '?action=get_app_config&callback=' + cbName;
+        scriptEl.onerror = function () {
+          delete window[cbName];
+        };
+        document.body.appendChild(scriptEl);
+      }
+
+      document.getElementById('staffPasscodeInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          submitPasscode();
+        }
+      });
+    });
+
+    let currentHubTab = 'patient';
+    function switchHubTab(tabName) {
+      currentHubTab = tabName;
+      document.getElementById('tabBtnPatient').classList.toggle('active', tabName === 'patient');
+      document.getElementById('tabBtnStaff').classList.toggle('active', tabName === 'staff');
+      document.getElementById('panePatient').classList.toggle('active', tabName === 'patient');
+      document.getElementById('paneStaff').classList.toggle('active', tabName === 'staff');
+    }
+
+    function renderModules(data) {
+      document.getElementById('loader').style.display = 'none';
+      const patientContainer = document.getElementById('patientModuleList');
+      const staffContainer = document.getElementById('staffModuleList');
+      patientContainer.innerHTML = '';
+      staffContainer.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        patientContainer.innerHTML = '<div class="text-center text-muted py-5">ยังไม่มีแบบประเมินที่เปิดใช้งานในขณะนี้</div>';
+        staffContainer.innerHTML = '<div class="text-center text-muted py-5">ยังไม่มีระบบสำหรับเจ้าหน้าที่</div>';
+        return;
+      }
+
+      /* 1. แยกคนไข้ และ เจ้าหน้าที่ */
+      let patientModules = data.filter(item => item.user_type !== 'STAFF');
+      let staffModules = data.filter(item => item.user_type === 'STAFF');
+
+      /* เรียงลำดับแบบประเมินสำหรับคนไข้ (womac -> kss_pre -> fjs -> oxford -> eq5d) */
+      const patientSortOrder = ['womac', 'kss_pre', 'kss', 'fjs', 'oxford', 'eq5d'];
+      patientModules.sort((a, b) => {
+        let idA = (a.module_id || '').toLowerCase();
+        let idB = (b.module_id || '').toLowerCase();
+        let idxA = patientSortOrder.findIndex(k => idA.includes(k));
+        let idxB = patientSortOrder.findIndex(k => idB.includes(k));
+        if (idxA === -1) idxA = 99;
+        if (idxB === -1) idxB = 99;
+        return idxA - idxB;
+      });
+
+      document.getElementById('patientCountBadge').innerText = patientModules.length;
+
+      let patientHtml = '';
+      patientModules.forEach(item => {
+        patientHtml += getModuleCardHtml(item);
+      });
+      patientContainer.innerHTML = patientHtml;
+
+      /* 2. หมวดเจ้าหน้าที่ (รวม Admin Dashboard เข้ามาในแท็บนี้) */
+      let staffHtml = '';
+      staffModules.forEach(item => {
+        staffHtml += getModuleCardHtml(item);
+      });
+
+      const hasDashboard = staffModules.some(m => (m.module_id || '').toLowerCase().includes('dashboard'));
+      if (!hasDashboard) {
+        const dashboardModule = {
+          module_id: 'dashboard',
+          title: 'สรุปผลภาพรวมระบบ (Master Dashboard)',
+          subtitle: 'Arthroplasty Analytics & Master Data',
+          description: 'ดูสถิติผู้ป่วยรวมทุกแบบประเมิน กราฟวิเคราะห์ผลคะแนน และส่งออกรายงานข้อมูล Excel',
+          tag_score: 'สถิติภาพรวม',
+          tag_qty: 'ส่งออก Excel',
+          tag_joint: 'วิเคราะห์ข้อมูล',
+          theme_color: '#334155',
+          user_type: 'STAFF',
+          action_link: '?page=dashboard'
+        };
+        staffHtml += getModuleCardHtml(dashboardModule);
+      }
+
+      staffContainer.innerHTML = staffHtml;
+    }
+
+    function getModuleCardHtml(item) {
+      const themeColor = item.theme_color || '#2e7d32';
+      const isStaff = item.user_type === 'STAFF';
+
+      let tagsHtml = '';
+      if (item.tag_score) tagsHtml += `<span class="c-tag" style="color: ${themeColor}; border-color: ${themeColor}40;">${item.tag_score}</span>`;
+      if (item.tag_qty) tagsHtml += `<span class="c-tag" style="color: ${themeColor}; border-color: ${themeColor}40;">${item.tag_qty}</span>`;
+      if (item.tag_joint) tagsHtml += `<span class="c-tag" style="color: ${themeColor}; border-color: ${themeColor}40;">${item.tag_joint}</span>`;
+
+      let targetUrl = '';
+      if (item.action_link && item.action_link.indexOf('http') === 0) {
+        targetUrl = item.action_link;
+      } else {
+        let pageParam = item.module_id || '';
+        if (item.action_link && item.action_link.includes('page=')) {
+          pageParam = item.action_link.split('page=')[1].split('&')[0];
+        }
+        targetUrl = SCRIPT_URL + '?page=' + pageParam;
+      }
+
+      let iconSvg = '';
+      if (isStaff) {
+        if (item.module_id === 'kss_physician') {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"></path><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"></path><circle cx="20" cy="10" r="2"></circle></svg>';
+        } else {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>';
+        }
+      } else {
+        const mid = (item.module_id || '').toLowerCase();
+        const title = (item.title || '').toLowerCase();
+        if (mid.includes('womac')) {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"></circle><path d="M6.5 9h11L15 22h-2l-1-7-1 7H9L6.5 9z"></path></svg>';
+        } else if (mid.includes('kss')) {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"></path><path d="M9 10h6"></path><path d="M10 14h4"></path><circle cx="12" cy="12" r="3"></circle><path d="M12 15v7"></path><path d="M8 22h8"></path></svg>';
+        } else if (mid.includes('eq5d') || title.includes('eq-5d')) {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>';
+        } else if (mid.includes('fjs')) {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 3"></path></svg>';
+        } else {
+          iconSvg = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+        }
+      }
+
+      let qrHtml = '';
+      if (!isStaff && item.qr_drive_id) {
+        const qrUrl = 'https:' + String.fromCharCode(47, 47) + 'lh5.googleusercontent.com/d/' + item.qr_drive_id;
+        qrHtml = '<div class="qr-box" data-qr="' + qrUrl + '" data-title="' + encodeURIComponent(item.title) + '" onclick="handleQrClick(this)" title="แตะเพื่อขยาย QR Code">' +
+          '<img src="' + qrUrl + '" alt="QR Code" class="qr-img">' +
+          '<span class="qr-hint">แตะขยาย</span>' +
+        '</div>';
+      }
+
+      let actionBtnHtml = '';
+      if (isStaff) {
+        actionBtnHtml = '<button type="button" class="btn-action" data-module="' + item.module_id + '" data-target="' + encodeURIComponent(targetUrl) + '" onclick="handleStaffBtnClick(this)" style="background-color: ' + themeColor + '; box-shadow: 0 4px 15px ' + themeColor + '40;">' +
+          'เข้าใช้งาน (กรอกรหัสผ่าน) 🔒' +
+        '</button>';
+      } else {
+        actionBtnHtml = '<a href="' + targetUrl + '" target="_top" class="btn-action" style="background-color: ' + themeColor + '; box-shadow: 0 4px 15px ' + themeColor + '40;">' +
+          'เปิด ' + item.title + ' &rarr;' +
+        '</a>';
+      }
+
+      const staffBadge = isStaff ? '<span class="badge bg-danger ms-1" style="font-size:0.68rem;">เฉพาะเจ้าหน้าที่ 🔒</span>' : '';
+
+      return `
+      <div class="module-card">
+        <div class="card-top">
+          <div class="icon-box" style="color: ${themeColor}; background-color: ${themeColor}15; border: 1px solid ${themeColor}30;">
+            ${iconSvg}
+          </div>
+          <div class="info-box">
+            <div class="m-title">
+              ${item.title} ${staffBadge}
+            </div>
+            <div class="m-subtitle">${item.subtitle}</div>
+            <div class="m-desc">${item.description}</div>
+            <div class="tags-container">
+              ${tagsHtml}
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        
+        <div class="action-row">
+          ${qrHtml}
+          ${actionBtnHtml}
+        </div>
+      </div>
+    `;
+    }
+
+    function handleQrClick(el) {
+      const url = el.getAttribute('data-qr') || '';
+      const title = decodeURIComponent(el.getAttribute('data-title') || '');
+      openQrModal(url, title);
+    }
+
+    function handleStaffBtnClick(el) {
+      const moduleId = el.getAttribute('data-module') || '';
+      const targetUrl = decodeURIComponent(el.getAttribute('data-target') || '');
+      triggerPasscodeModal(moduleId, targetUrl);
+    }
+
+    /* ฟังก์ชันสำหรับเปิด-ปิด QR Code Modal */
+    function openQrModal(url, title) {
+      document.getElementById('modalQrImg').src = url;
+      document.getElementById('modalQrTitle').innerText = title;
+      document.getElementById('qrModal').style.display = 'flex';
+    }
+
+    function closeQrModal() {
+      document.getElementById('qrModal').style.display = 'none';
+      document.getElementById('modalQrImg').src = '';
+    }
+
+    /* ฟังก์ชันควบคุมรหัสผ่านเจ้าหน้าที่ */
+    function triggerPasscodeModal(moduleId, actionLink) {
+      activeModuleId = moduleId;
+      activeActionLink = actionLink;
+      document.getElementById('staffPasscodeInput').value = '';
+      document.getElementById('passcodeError').style.display = 'none';
+      document.getElementById('passcodeModal').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('staffPasscodeInput').focus();
+      }, 100);
+    }
+
+    function closePasscodeModal() {
+      document.getElementById('passcodeModal').style.display = 'none';
+      document.getElementById('staffPasscodeInput').value = '';
+      document.getElementById('passcodeError').style.display = 'none';
+    }
+
+    function submitPasscode() {
+      const passcode = document.getElementById('staffPasscodeInput').value;
+      const errorDiv = document.getElementById('passcodeError');
+      const submitBtn = document.getElementById('btnSubmitPasscode');
+
+      if (!passcode) {
+        errorDiv.innerText = 'กรุณากรอกรหัสผ่าน';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      errorDiv.style.display = 'none';
+      function handleSuccess(response) {
+        submitBtn.disabled = false;
+        if (response && response.success) {
+          submitBtn.innerText = 'กำลังเข้าสู่ระบบ...';
+          closePasscodeModal();
+          document.getElementById('loader').style.display = 'block';
+          const p1 = document.getElementById('panePatient');
+          const p2 = document.getElementById('paneStaff');
+          if (p1) p1.style.display = 'none';
+          if (p2) p2.style.display = 'none';
+
+          /* นำทางไปยัง targetUrl พร้อมแนบ email และ name ของเจ้าหน้าที่ใน URL */
+          let targetUrl = activeActionLink;
+          if (!targetUrl || targetUrl.indexOf('http') !== 0) {
+            let pageParam = activeModuleId || 'dashboard';
+            if (targetUrl && targetUrl.includes('page=')) {
+              pageParam = targetUrl.split('page=')[1].split('&')[0];
+            }
+            targetUrl = SCRIPT_URL + '?page=' + pageParam;
+          }
+          const separator = targetUrl.indexOf('?') !== -1 ? '&' : '?';
+          targetUrl += separator + 'staff_email=' + encodeURIComponent(response.email || '') + '&staff_name=' + encodeURIComponent(response.name || '');
+
+          if (window.top) {
+            window.top.location.href = targetUrl;
+          } else {
+            window.location.href = targetUrl;
+          }
+        } else {
+          submitBtn.innerText = 'เข้าสู่ระบบแบบประเมิน →';
+          errorDiv.innerText = (response && response.message) ? response.message : 'รหัสผ่านไม่ถูกต้อง';
+          errorDiv.style.display = 'block';
+          document.getElementById('staffPasscodeInput').focus();
+        }
+      }
+
+      function handleError(err) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'เข้าสู่ระบบแบบประเมิน →';
+        errorDiv.innerText = 'เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์';
+        errorDiv.style.display = 'block';
+      }
+
+      const isGoogleAppsScript = (typeof google !== 'undefined' && google.script && google.script.run);
+      if (isGoogleAppsScript) {
+        google.script.run
+          .withSuccessHandler(handleSuccess)
+          .withFailureHandler(handleError)
+          .verifyStaffPasscode(passcode);
+      } else {
+        /* ตรวจสอบผ่าน JSONP เมื่อเปิดใช้งานบน GitHub Pages */
+        const cbName = 'jsonp_passcode_' + Math.round(100000 * Math.random());
+        const scriptEl = document.createElement('script');
+        window[cbName] = function (data) {
+          delete window[cbName];
+          if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+          handleSuccess(data);
+        };
+        scriptEl.src = SCRIPT_URL + '?action=verify_passcode&passcode=' + encodeURIComponent(passcode) + '&callback=' + cbName;
+        scriptEl.onerror = function () {
+          delete window[cbName];
+          if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+          handleError();
+        };
+        document.body.appendChild(scriptEl);
+      }
+    }
+  </script>
+</body>
+
+</html>
